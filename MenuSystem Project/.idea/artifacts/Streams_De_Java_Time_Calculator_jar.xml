@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Streams De Java Time Calculator:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Streams_De_Java_Time_Calculator_jar</output-path>
+    <root id="archive" name="Streams De Java Time Calculator.jar">
+      <element id="module-output" name="Streams De Java Time Calculator" />
+    </root>
+  </artifact>
+</component>
