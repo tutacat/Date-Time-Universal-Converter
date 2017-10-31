@@ -1,23 +1,22 @@
 package com.company;
 
-import com.company.Operations.IMenu;
 import com.company.Operations.Menu;
-import javafx.application.Application;
 
-import javax.swing.plaf.synth.SynthTextAreaUI;
-import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Scanner;
 
-import static com.company.Operations.Menu.*;
+import static com.company.Operations.Menu.ActiveMenu;
 import static java.lang.System.in;
 import static java.lang.System.out;
 
 public class App {
 
-    static String Decorator = "________________________________________________________________";
-    static String OtherDecorator = "███████████████████████████████████";
+    public static App This;
+
+    static final String Decorator = "________________________________________________________________";
+    public static final String OtherDecorator = "███████████████████████████████████";
 
     public static String AppName;
 
@@ -34,6 +33,8 @@ public class App {
 
     private void Start()
     {
+        This = this;
+
         mainMenu.SetHeader("This is the main menu");
         mainMenu.AddOption("Get Current Date", () -> {
             out.println(LocalDateTime.now());
@@ -71,7 +72,7 @@ public class App {
         ActiveMenu = mainMenu;
     }
 
-    private void Update() {
+    private void Update() throws InvocationTargetException, IllegalAccessException {
         while(true){
             if(!IsRunning)
                 break;
@@ -84,7 +85,7 @@ public class App {
         IsRunning = !IsRunning;
     }
 
-    public void Run(){
+    public void Run() throws InvocationTargetException, IllegalAccessException {
         SetRunning();
         Start();
         Update();
