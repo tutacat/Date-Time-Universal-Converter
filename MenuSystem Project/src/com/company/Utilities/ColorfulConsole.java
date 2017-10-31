@@ -6,8 +6,8 @@ import static java.lang.System.out;
 
 public class ColorfulConsole {
 
-    public static void WriteLine(AnsiColor text, String rawText){
-        out.println(text.Color + rawText);
+    public static void WriteLine(AnsiColor color, String rawText){
+        out.println(color.Color + rawText);
         Reset();
     }
 

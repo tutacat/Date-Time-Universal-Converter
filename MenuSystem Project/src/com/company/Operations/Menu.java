@@ -1,13 +1,15 @@
 package com.company.Operations;
 
 import com.company.App;
-import com.company.Main;
+import com.company.Utilities.ColorfulConsole;
 
-import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 import static com.company.Main.EMPTY_STRING;
-import static com.company.Main.main;
+import static com.company.Utilities.ConsoleColors.AnsiColor.Blue;
+import static com.company.Utilities.ConsoleColors.AnsiColor.Modifier.*;
+import static com.company.Utilities.ConsoleColors.AnsiColor.Red;
 import static java.lang.Integer.parseInt;
 import static java.lang.System.in;
 import static java.lang.System.out;
@@ -58,13 +60,16 @@ public class Menu implements IMenu {
 
     public void Show(String decorator) {
         out.println(App.AppName);
-        out.println(decorator);
-        if(menuHeader != EMPTY_STRING)
-            out.println(menuHeader);
-        for (int i = 1; i <= Options.size(); i++) {
-            out.printf("[%d] %s\n", i, Options.get(i));
+        //out.println(decorator);
+        ColorfulConsole.WriteLine(Blue(Bold), decorator);
+        if(menuHeader != EMPTY_STRING) {
+            ColorfulConsole.WriteLine(Red(Bold), menuHeader);
         }
-        out.println(decorator);
+        for (int i = 1; i <= Options.size(); i++) {
+            String f = String.format("{0}[%1$s] {1}%2$s", i, Options.get(i));
+            ColorfulConsole.WriteLineFormatted(f, Blue(Bold), Red(Underline));
+        }
+        ColorfulConsole.WriteLine(Blue(Bold), decorator);
     }
 
     public void AddOption(String op, Event<IMenu> o) {
