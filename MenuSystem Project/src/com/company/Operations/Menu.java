@@ -2,14 +2,18 @@ package com.company.Operations;
 
 import com.company.App;
 import com.company.Utilities.ColorfulConsole;
+import com.company.Utilities.ConsoleColors;
+import com.company.Utilities.ConsoleColors.AnsiColor.Modifier;
 
-import java.lang.reflect.InvocationTargetException;
+import java.io.Console;
 import java.util.*;
+import java.util.function.Predicate;
 
 import static com.company.Main.EMPTY_STRING;
 import static com.company.Utilities.ConsoleColors.AnsiColor.Blue;
 import static com.company.Utilities.ConsoleColors.AnsiColor.Modifier.*;
 import static com.company.Utilities.ConsoleColors.AnsiColor.Red;
+import static com.company.Utilities.ConsoleColors.AnsiColor.Yellow;
 import static java.lang.Integer.parseInt;
 import static java.lang.System.in;
 import static java.lang.System.out;
@@ -42,6 +46,7 @@ public class Menu implements IMenu {
     }
 
     public void ProcessInput() {
+        ColorfulConsole.Write(Yellow(Regular), ">");
         Scanner s = new Scanner(in);
         int cmd = 1;
         String line = s.nextLine();

@@ -52,7 +52,7 @@ public class ColorfulConsole {
     }
 
     private static void Reset(){
-        out.println(RESET);
+        out.print(RESET);
         out.flush();
     }
 }
