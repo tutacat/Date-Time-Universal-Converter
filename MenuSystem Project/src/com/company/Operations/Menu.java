@@ -2,25 +2,21 @@ package com.company.Operations;
 
 import com.company.App;
 import com.company.Utilities.ColorfulConsole;
-import com.company.Utilities.ConsoleColors;
-import com.company.Utilities.ConsoleColors.AnsiColor.Modifier;
 
-import java.io.Console;
+import java.awt.event.KeyEvent;
 import java.util.*;
-import java.util.function.Predicate;
 
 import static com.company.Main.EMPTY_STRING;
-import static com.company.Utilities.ConsoleColors.AnsiColor.Blue;
-import static com.company.Utilities.ConsoleColors.AnsiColor.Modifier.*;
-import static com.company.Utilities.ConsoleColors.AnsiColor.Red;
-import static com.company.Utilities.ConsoleColors.AnsiColor.Yellow;
+import static com.company.Utilities.ConsoleColors.AnsiColor.*;
+import static com.company.Utilities.ConsoleColors.AnsiColor.Modifier.Bold;
+import static com.company.Utilities.ConsoleColors.AnsiColor.Modifier.Regular;
 import static java.lang.Integer.parseInt;
 import static java.lang.System.in;
 import static java.lang.System.out;
 
-public class Menu implements IMenu {
+public class Menu implements MenuInterface {
 
-    public static IMenu ActiveMenu;
+    public static MenuInterface ActiveMenu;
 
     protected Dictionary<Integer, String> Options;
     protected List<Event> functions;
@@ -28,6 +24,8 @@ public class Menu implements IMenu {
     public int Size = 0;
 
     private String menuHeader = EMPTY_STRING;
+
+    private int rows = 5;
 
     public void SetHeader(String headerString){
 
@@ -47,6 +45,7 @@ public class Menu implements IMenu {
 
     public void ProcessInput() {
         ColorfulConsole.Write(Yellow(Regular), ">");
+
         Scanner s = new Scanner(in);
         int cmd = 1;
         String line = s.nextLine();
@@ -57,10 +56,10 @@ public class Menu implements IMenu {
             cmd = parseInt(line);
         }
         if(line.length() > String.valueOf(Size).length() && Integer.parseInt(line) > Size){
-            System.out.println("Input not recognized");
+            out.println("Input not recognized");
             return;
         }
-        ActiveMenu = (IMenu) functions.get(cmd - 1).Run();
+        ActiveMenu = (MenuInterface) functions.get(cmd - 1).Run();
     }
 
     public void Show(String decorator) {
@@ -70,14 +69,39 @@ public class Menu implements IMenu {
         if(menuHeader != EMPTY_STRING) {
             ColorfulConsole.WriteLine(Red(Bold), menuHeader);
         }
-        for (int i = 1; i <= Options.size(); i++) {
-            String f = String.format("{0}[%1$s] {1}%2$s", i, Options.get(i));
-            ColorfulConsole.WriteLineFormatted(f, Blue(Bold), Red(Underline));
+
+        boolean b = false;
+        if(Options.size() > rows)
+            b=true;
+
+        String f = "";
+        int i = 1, aux = 0;
+        if(b == true){
+            int res = Options.size() / rows;
+            for (int j = 0; j < res; j++) {
+                for (; i <= Options.size(); i++) {
+                    f += String.format("{0}[%d] {1}%-10s\t", i, Options.get(i));
+                    aux++;
+                    if(aux == rows) {
+                        i++; aux = 0;
+                        if(i < Options.size()) {
+                            f+="\n";
+                        }
+                        break;
+                    }
+                }
+            }
+            ColorfulConsole.WriteLineFormatted(f, Blue(Bold), Red(Regular));
+        }else {
+            for (int r = 1; r <= Options.size(); r++) {
+                f = String.format("{0}[%d] {1}%s", r, Options.get(r));
+                ColorfulConsole.WriteLineFormatted(f, Blue(Bold), Red(Regular));
+            }
         }
         ColorfulConsole.WriteLine(Blue(Bold), decorator);
     }
 
-    public void AddOption(String op, Event<IMenu> o) {
+    public void AddOption(String op, Event<MenuInterface> o) {
         Size++;
         functions.add(o);
         Options.put(Size, op);

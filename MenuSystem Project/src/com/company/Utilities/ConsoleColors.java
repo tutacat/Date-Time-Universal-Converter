@@ -33,7 +33,6 @@ public class ConsoleColors {
             private static final String RegularCode = "\033[0;3_m";
             private static final String BoldCode = "\033[1;3_m";
             private static final String UnderLineCode = "\033[4;3_m";
-
             private static final String BackgroundCode = "\033[4_m";
 
             private int mc;
@@ -50,6 +49,8 @@ public class ConsoleColors {
                         return SetTextColor(code, Modifier.BoldCode);
                     case 3:
                         return SetTextColor(code, Modifier.UnderLineCode);
+                    case 4:
+                        return SetTextColor(code, Modifier.BackgroundCode);
                 }
                 return EMPTY_STRING;
             }

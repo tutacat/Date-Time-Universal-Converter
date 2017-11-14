@@ -1,8 +1,8 @@
 package com.company.Operations;
 
-public interface IMenu {
+public interface MenuInterface {
     boolean RemoveOption(Integer Option);
     void ProcessInput();
-    void AddOption(String op, Event<IMenu> o);
+    void AddOption(String op, Event<MenuInterface> o);
     void Show(String decorator);
 }
