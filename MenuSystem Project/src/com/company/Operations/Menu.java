@@ -21,14 +21,22 @@ public class Menu implements MenuInterface {
     protected Dictionary<Integer, String> Options;
     protected List<Event> functions;
 
-    public int Size = 0;
+    public int GetSize(){
+        return Options.size();
+    }
 
     private String menuHeader = EMPTY_STRING;
 
     private int rows = 5;
+    public void SetRows(int n){
+        rows = n;
+        if(rows < 0)
+            rows = 1;
+        else if(rows > GetSize())
+            rows = GetSize() / 2;
+    }
 
     public void SetHeader(String headerString){
-
         this.menuHeader = headerString;
     }
 
@@ -39,7 +47,6 @@ public class Menu implements MenuInterface {
     }
 
     public boolean RemoveOption(Integer option){
-        Size--;
         return functions.remove(option);
     }
 
@@ -49,13 +56,13 @@ public class Menu implements MenuInterface {
         Scanner s = new Scanner(in);
         int cmd = 1;
         String line = s.nextLine();
-        if(Size > 1 && line.length() == 0) {
+        if(GetSize() > 1 && line.length() == 0) {
             return;
         }
-        if(Size > 1 && line.length() >= 1){
+        if(GetSize() > 1 && line.length() >= 1){
             cmd = parseInt(line);
         }
-        if(line.length() > String.valueOf(Size).length() && Integer.parseInt(line) > Size){
+        if(line.length() > String.valueOf(GetSize()).length() && Integer.parseInt(line) > GetSize()){
             out.println("Input not recognized");
             return;
         }
@@ -80,12 +87,13 @@ public class Menu implements MenuInterface {
             int res = Options.size() / rows;
             for (int j = 0; j < res; j++) {
                 for (; i <= Options.size(); i++) {
-                    f += String.format("{0}[%d] {1}%-10s\t", i, Options.get(i));
+                    f += String.format("{0}[%d] {1}%-10s\t", i, Options.get(i - 1));
                     aux++;
                     if(aux == rows) {
-                        i++; aux = 0;
+                        i++;
+                        aux = 0;
                         if(i < Options.size()) {
-                            f+="\n";
+                            f += "\n";
                         }
                         break;
                     }
@@ -94,7 +102,7 @@ public class Menu implements MenuInterface {
             ColorfulConsole.WriteLineFormatted(f, Blue(Bold), Red(Regular));
         }else {
             for (int r = 1; r <= Options.size(); r++) {
-                f = String.format("{0}[%d] {1}%s", r, Options.get(r));
+                f = String.format("{0}[%d] {1}%s", r, Options.get(r - 1));
                 ColorfulConsole.WriteLineFormatted(f, Blue(Bold), Red(Regular));
             }
         }
@@ -102,8 +110,7 @@ public class Menu implements MenuInterface {
     }
 
     public void AddOption(String op, Event<MenuInterface> o) {
-        Size++;
         functions.add(o);
-        Options.put(Size, op);
+        Options.put(GetSize(), op);
     }
 }

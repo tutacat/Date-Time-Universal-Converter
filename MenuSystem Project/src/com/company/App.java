@@ -1,6 +1,8 @@
 package com.company;
 
 import com.company.Operations.Menu;
+import com.company.Utilities.ColorfulConsole;
+import com.company.Utilities.ConsoleColors;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -9,6 +11,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.Scanner;
 
 import static com.company.Operations.Menu.ActiveMenu;
+import static com.company.Utilities.ConsoleColors.AnsiColor.Modifier.Underline;
+import static com.company.Utilities.ConsoleColors.AnsiColor.Red;
 import static java.lang.System.in;
 import static java.lang.System.out;
 
@@ -48,7 +52,6 @@ public class App {
             SetRunning();
             return ExitMenu;
         });
-        ExitMenu.SetHeader("!GoodBye!");
 
         for (ChronoUnit unit : ChronoUnit.values())
         {
@@ -66,6 +69,7 @@ public class App {
                 });
             }
         }
+        TemporalUnitsMenu.AddOption("Back", () -> mainMenu);
         TemporalUnitsMenu.SetHeader("Choose what Chronological part you want to Sum");
 
         dateMenu.AddOption("Back", () -> mainMenu);
@@ -80,6 +84,7 @@ public class App {
             Menu.ActiveMenu.Show(Decorator);
             Menu.ActiveMenu.ProcessInput();
         }
+        ColorfulConsole.WriteLine(Red(Underline),"!Goodbye!");
     }
 
     public void SetRunning(){
