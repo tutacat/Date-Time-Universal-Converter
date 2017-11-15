@@ -1,7 +1,13 @@
 package com.company.Utilities;
 
+import javax.print.DocFlavor;
+import java.util.Arrays;
+import java.util.Scanner;
+
+import static com.company.Main.EMPTY_STRING;
 import static com.company.Utilities.ConsoleColors.AnsiColor;
 import static com.company.Utilities.ConsoleColors.RESET;
+import static java.lang.System.in;
 import static java.lang.System.out;
 
 public class ColorfulConsole {
@@ -49,6 +55,20 @@ public class ColorfulConsole {
         }
         out.println(stringBuilder.toString());
         Reset();
+    }
+
+    private static Scanner scanner = new Scanner(in);
+
+    public static int ReadNextInt() {
+        if(scanner.hasNextInt())
+            return scanner.nextInt();
+        return -1;
+    }
+
+    public static String ReadNext() {
+        if(scanner.hasNext())
+            return scanner.next();
+        return EMPTY_STRING;
     }
 
     private static void Reset(){

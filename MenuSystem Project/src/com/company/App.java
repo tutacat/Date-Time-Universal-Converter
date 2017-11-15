@@ -11,6 +11,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Scanner;
 
 import static com.company.Operations.Menu.ActiveMenu;
+import static com.company.Utilities.ConsoleColors.AnsiColor.Green;
 import static com.company.Utilities.ConsoleColors.AnsiColor.Modifier.Underline;
 import static com.company.Utilities.ConsoleColors.AnsiColor.Red;
 import static java.lang.System.in;
@@ -59,12 +60,11 @@ public class App {
             {
                 TemporalUnitsMenu.AddOption(unit.toString(), () ->
                 {
-                    out.println("How many " + unit.toString() + " you want to add?");
-                    Scanner s = new Scanner(in);
-                    int cmd = s.nextInt();
+                    ColorfulConsole.WriteLine(Green(Underline), "How many " + unit.toString() + " you want to add?");
+                    int cmd = ColorfulConsole.ReadNextInt();
                     LocalDateTime time = LocalDateTime.now().plus((long) cmd, unit);
-                    out.println("Time now: " + LocalDateTime.now());
-                    out.println("Time plus " + cmd + " " + unit.toString() + ":" + time);
+                    ColorfulConsole.WriteLine(Green(Underline),"Time now: " + LocalDateTime.now());
+                    ColorfulConsole.WriteLine(Green(Underline),"Time plus " + cmd + " " + unit.toString() + ":" + time);
                     return mainMenu;
                 });
             }

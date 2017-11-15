@@ -85,18 +85,19 @@ public class Menu implements MenuInterface {
         int i = 1, aux = 0;
         if(b == true){
             int res = Options.size() / rows;
-            for (int j = 0; j < res; j++) {
-                for (; i <= Options.size(); i++) {
+            for (int j = 0; j <= res; j++) {
+                for (; i <= Options.size();) {
                     f += String.format("{0}[%d] {1}%-10s\t", i, Options.get(i - 1));
                     aux++;
                     if(aux == rows) {
                         i++;
                         aux = 0;
-                        if(i < Options.size()) {
+                        if(i <= Options.size()) {
                             f += "\n";
                         }
                         break;
                     }
+                    else i++;
                 }
             }
             ColorfulConsole.WriteLineFormatted(f, Blue(Bold), Red(Regular));
