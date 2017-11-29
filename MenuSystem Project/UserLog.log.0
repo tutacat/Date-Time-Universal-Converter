@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE log SYSTEM "logger.dtd">
+<log>
+<record>
+  <date>2017-11-27T01:40:51</date>
+  <millis>1511746851174</millis>
+  <sequence>0</sequence>
+  <logger>Application Log</logger>
+  <level>INFO</level>
+  <class>com.company.Utilities.Logger.LogSystem</class>
+  <method>SetLogFile</method>
+  <thread>1</thread>
+  <message>Log Active</message>
+</record>
+nov 27, 2017 1:40:51 AM com.company.Utilities.Logger.LogSystem WriteLog
+INFO: Application State changed to running
+nov 27, 2017 1:40:51 AM com.company.Utilities.Logger.LogSystem WriteLog
+INFO: Application State changed to stopped
+nov 27, 2017 1:40:52 AM com.company.Utilities.Logger.LogSystem WriteLog
+INFO: Current Menu -> Undefined | User Input -> 3
+nov 27, 2017 1:40:52 AM com.company.Utilities.Logger.LogSystem WriteLog
+INFO: Application State changed to running
+nov 27, 2017 1:40:52 AM com.company.Utilities.Logger.LogSystem WriteLog
+INFO: Application State changed to stopped
+nov 27, 2017 1:40:53 AM com.company.Utilities.Logger.LogSystem WriteLog
+INFO: Current Menu -> Undefined | User Input -> 1
+nov 27, 2017 1:40:53 AM com.company.Utilities.Logger.LogSystem WriteLog
+INFO: Application State changed to closed
+nov 27, 2017 1:40:53 AM com.company.Utilities.Logger.LogSystem WriteLog
+INFO: Application State changed to running
+nov 27, 2017 1:40:53 AM com.company.Utilities.Logger.LogSystem WriteLog
+INFO: Application State changed to stopped
+nov 27, 2017 1:40:54 AM com.company.Utilities.Logger.LogSystem WriteLog
+INFO: Current Menu -> Undefined | User Input -> 1
+nov 27, 2017 1:40:54 AM com.company.Utilities.Logger.LogSystem WriteLog
+INFO: Application State changed to closed
+nov 27, 2017 1:40:54 AM com.company.Utilities.Logger.LogSystem WriteLog
+INFO: Application State changed to running
+nov 27, 2017 1:40:54 AM com.company.Utilities.Logger.LogSystem WriteLog
+INFO: Application State changed to stopped
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE log SYSTEM "logger.dtd">
+<log>
+<record>
+  <date>2017-11-27T01:41:46</date>
+  <millis>1511746906808</millis>
+  <sequence>0</sequence>
+  <logger>Application Log</logger>
+  <level>INFO</level>
+  <class>com.company.Utilities.Logger.LogSystem</class>
+  <method>SetLogFile</method>
+  <thread>1</thread>
+  <message>Log Active</message>
+</record>
+nov 27, 2017 1:41:46 AM com.company.Utilities.Logger.LogSystem WriteLog
+INFO: Application State changed to running
+nov 27, 2017 1:41:46 AM com.company.Utilities.Logger.LogSystem WriteLog
+INFO: Application State changed to stopped
+nov 27, 2017 1:41:47 AM com.company.Utilities.Logger.LogSystem WriteLog
+INFO: Current Menu -> Undefined | User Input -> 3
+nov 27, 2017 1:41:47 AM com.company.Utilities.Logger.LogSystem WriteLog
+INFO: Application State changed to running
+nov 27, 2017 1:41:47 AM com.company.Utilities.Logger.LogSystem WriteLog
+INFO: Application State changed to stopped
+nov 27, 2017 1:41:48 AM com.company.Utilities.Logger.LogSystem WriteLog
+INFO: Current Menu -> Undefined | User Input -> 1
+nov 27, 2017 1:41:48 AM com.company.Utilities.Logger.LogSystem WriteLog
+INFO: Application State changed to closed
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE log SYSTEM "logger.dtd">
+<log>
+<record>
+  <date>2017-11-29T16:29:00</date>
+  <millis>1511972940138</millis>
+  <sequence>0</sequence>
+  <logger>Application Log</logger>
+  <level>INFO</level>
+  <class>com.company.Utilities.Logger.LogSystem</class>
+  <method>SetLogFile</method>
+  <thread>1</thread>
+  <message>Log Active</message>
+</record>
+nov 29, 2017 4:29:03 PM com.company.Utilities.Logger.LogSystem WriteLog
+INFO: Current Menu -> Undefined | User Input -> 3
+nov 29, 2017 4:29:05 PM com.company.Utilities.Logger.LogSystem WriteLog
+INFO: Current Menu -> Undefined | User Input -> 1
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE log SYSTEM "logger.dtd">
+<log>
+<record>
+  <date>2017-11-29T16:44:56</date>
+  <millis>1511973896382</millis>
+  <sequence>0</sequence>
+  <logger>Application Log</logger>
+  <level>INFO</level>
+  <class>com.company.Utilities.Logger.LogSystem</class>
+  <method>SetLogFile</method>
+  <thread>1</thread>
+  <message>Log Active</message>
+</record>
+nov 29, 2017 4:44:58 PM com.company.Utilities.Logger.LogSystem WriteLog
+INFO: Current Menu -> Undefined | User Input -> 3
+nov 29, 2017 4:44:59 PM com.company.Utilities.Logger.LogSystem WriteLog
+INFO: Current Menu -> Undefined | User Input -> 1

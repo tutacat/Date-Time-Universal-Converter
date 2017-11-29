@@ -1,9 +1,7 @@
 package com.company.Operations;
 
-import java.util.function.Function;
-
 @FunctionalInterface
-public interface ParametrizedEvent<T, R>{
+public interface Function<T, R>{
     T Run(R... params) throws Exception;
     default T Execute(R... params) throws Exception {
         T result = Run(params);

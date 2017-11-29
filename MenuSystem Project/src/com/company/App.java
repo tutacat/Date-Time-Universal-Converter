@@ -1,46 +1,112 @@
 package com.company;
 
+import com.company.Operations.Application;
 import com.company.Operations.Menu;
-import com.company.Utilities.ColorfulConsole;
-import com.company.Utilities.ConsoleColors;
+import com.company.Operations.MenuInterface;
+import com.company.Utilities.*;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Scanner;
 
-import static com.company.Operations.Menu.ActiveMenu;
 import static com.company.Utilities.ConsoleColors.AnsiColor.Green;
+import static com.company.Utilities.ConsoleColors.AnsiColor.Modifier.Bold;
 import static com.company.Utilities.ConsoleColors.AnsiColor.Modifier.Underline;
 import static com.company.Utilities.ConsoleColors.AnsiColor.Red;
-import static java.lang.System.in;
 import static java.lang.System.out;
 
-public class App {
+public class App implements Application, EventListener  {
 
     public static App This;
 
     static final String Decorator = "________________________________________________________________";
     public static final String OtherDecorator = "███████████████████████████████████";
 
-    public static String AppName;
+    private String AppName;
 
-    public boolean IsRunning = false;
+    private boolean IsRunning = false;
 
-    private Menu mainMenu = new Menu();
-    private Menu dateMenu = new Menu();
-    private Menu TemporalUnitsMenu = new Menu();
-    private Menu ExitMenu = new Menu();
+    private MenuInterface mainMenu = new Menu();
+    private MenuInterface dateMenu = new Menu();
+    private MenuInterface TemporalUnitsMenu = new Menu();
+    private MenuInterface ExitMenu = new Menu();
 
-    public App(String Name){
-        AppName = Name;
+    public void setName(String name){
+        AppName = name;
+    }
+    public String getName(){
+        return AppName;
     }
 
-    private void Start()
+    private MenuInterface activeMenu;
+
+    State currentState = State.closed;
+
+    public void setActiveMenu(MenuInterface menu){
+        if(menu == null)
+            throw new NullPointerException();
+        activeMenu = menu;
+    }
+
+    /**This creates a new Event executor that handles methods
+    *   defined by the delegate class
+    *   in this case:
+    *       public void MethodCalledByEventExecutor(State state){
+    *           ...
+    *       }
+    */
+    public EventExecutor OnStateChangedEvent = new EventExecutor(0, new Delegate(void.class, State.class));
+
+    /**
+     * Does not return and does not have parameters
+     * code set to 1!
+     * Eg:
+     *      public void CustomMethod(){
+     *
+     *      }
+     */
+    public EventExecutor OnApplicationClose = new EventExecutor(1, new Delegate(void.class));
+
+    public MenuInterface getActiveMenu(){
+        return activeMenu;
+    }
+
+    @Override
+    public void SetState(State state) {
+        this.currentState = state;
+
+        //The OnStateChangedEvent will call
+        //all methods with the Event annotation
+        //and the respective code
+        OnStateChangedEvent.Invoke(state);
+    }
+
+    /**
+     * Annotation referente ao event executor com o code = 0!
+     *
+     * Neste caso isto corre sempre que e a app muda de state
+     * */
+    @Event(eventExecutorCode = 0)
+    public void OnStateChanged(State state){
+        ColorfulConsole.WriteLine(Green(Bold), "In App.Java! " + state.toString());
+        if(state == State.running)
+            IsRunning = true;
+        if(state == State.closed)
+            IsRunning = false;
+    }
+
+    @Event( eventExecutorCode = 1)
+    public void OnApplicationClosing(){
+        ColorfulConsole.WriteLine(Red(Underline),"!Goodbye!");
+    }
+
+    public void Start()
     {
         This = this;
 
+        OnStateChangedEvent.RegisterListener(this);
+        OnApplicationClose.RegisterListener(this);
+
+        mainMenu.SetApplication(this);
         mainMenu.SetHeader("This is the main menu");
         mainMenu.AddOption("Get Current Date", () -> {
             out.println(LocalDateTime.now());
@@ -49,8 +115,9 @@ public class App {
         mainMenu.AddOption("Sum to Current LocalDateTime", () -> TemporalUnitsMenu);
         mainMenu.AddOption("Exit", () ->  ExitMenu);
 
+        ExitMenu.SetApplication(this);
         ExitMenu.AddOption("Press Enter", () -> {
-            SetRunning();
+            SetState(State.closed);
             return ExitMenu;
         });
 
@@ -69,31 +136,33 @@ public class App {
                 });
             }
         }
+
+        TemporalUnitsMenu.SetApplication(this);
+        TemporalUnitsMenu.SetRows(3);
         TemporalUnitsMenu.AddOption("Back", () -> mainMenu);
         TemporalUnitsMenu.SetHeader("Choose what Chronological part you want to Sum");
 
+        dateMenu.SetApplication(this);
         dateMenu.AddOption("Back", () -> mainMenu);
 
-        ActiveMenu = mainMenu;
+        setActiveMenu(mainMenu);
     }
 
-    private void Update() throws InvocationTargetException, IllegalAccessException {
+    public void Update() {
         while(true){
+            getActiveMenu().Show(Decorator);
+            SetState(State.stopped);
+            getActiveMenu().ProcessInput();
             if(!IsRunning)
                 break;
-            Menu.ActiveMenu.Show(Decorator);
-            Menu.ActiveMenu.ProcessInput();
+            SetState(State.running);
         }
-        ColorfulConsole.WriteLine(Red(Underline),"!Goodbye!");
+        OnApplicationClose.Invoke();
     }
 
-    public void SetRunning(){
-        IsRunning = !IsRunning;
-    }
-
-    public void Run() throws InvocationTargetException, IllegalAccessException {
-        SetRunning();
+    public void Run() {
         Start();
+        SetState(State.running);
         Update();
     }
 }

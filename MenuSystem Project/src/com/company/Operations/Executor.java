@@ -1,7 +1,7 @@
 package com.company.Operations;
 
 @FunctionalInterface
-public interface Event<T>
+public interface Executor<T>
 {
     T Run();
     default T Execute() throws Exception {

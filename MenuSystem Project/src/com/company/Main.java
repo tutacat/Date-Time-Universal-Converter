@@ -1,15 +1,26 @@
 package com.company;
 
-import java.lang.reflect.InvocationTargetException;
+import com.company.Operations.Application;
+import com.company.Utilities.Logger.LogSystem;
+
+import java.io.IOException;
 
 public class Main {
 
     public static final String EMPTY_STRING = "";
 
-    static App app;
+    private static Application app;
 
-    public static void main(String[] args) throws InvocationTargetException, IllegalAccessException {
-        app = new App("Time Calculator");
+    public static void main(String[] args) {
+        try {
+            LogSystem.SetLogFile("UserLog.log");
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        app = new App();
+        app.setName("Time Calculator");
         app.Run();
     }
 }
