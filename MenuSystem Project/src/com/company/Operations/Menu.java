@@ -26,6 +26,11 @@ public class Menu implements MenuInterface {
     }
 
     private String menuHeader = EMPTY_STRING;
+    private String menuName = "DefaultMenu";
+
+    public void SetMenuName(String menuName) {
+        this.menuName = menuName;
+    }
 
     private int rows = 5;
     public void SetRows(int n){
@@ -67,11 +72,13 @@ public class Menu implements MenuInterface {
         if(GetSize() > 1 && line.length() >= 1){
             cmd = parseInt(line);
         }
-        if(line.length() > String.valueOf(GetSize()).length() && Integer.parseInt(line) > GetSize()){
+        if(line.length() > String.valueOf(GetSize()).length() || Integer.parseInt(line) > GetSize()){
             out.println("Input not recognized");
+            LogSystem.LogWarning("Input not recognized");
             return;
         }
-        LogSystem.WriteLog("Current Menu -> Undefined | User Input -> " + cmd);
+
+        LogSystem.WriteLog("Current Menu -> " + this.menuName + " | User Input -> " + cmd);
         app.setActiveMenu((MenuInterface) functions.get(cmd - 1).Run());
     }
 

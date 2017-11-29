@@ -1,9 +1,7 @@
 package com.company.Utilities.Logger;
 
 import java.io.IOException;
-import java.util.logging.FileHandler;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
+import java.util.logging.*;
 
 public class LogSystem
 {
@@ -11,6 +9,8 @@ public class LogSystem
     private static FileHandler fh;
 
     private static boolean locked = false;
+
+    private static SimpleFormatter formatter = new SimpleFormatter();
 
     public static void SetLogFile(String path) throws IOException {
         if(locked)
@@ -31,11 +31,31 @@ public class LogSystem
     public static void WriteLog(String logLine){
         try {
             // This block configure the logger with handler and formatter
-            SimpleFormatter formatter = new SimpleFormatter();
             fh.setFormatter(formatter);
             logger.info(logLine);
 
         } catch (SecurityException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void LogError(String error){
+        try {
+            fh.setFormatter(formatter);
+            logger.setLevel(Level.SEVERE);
+            logger.severe(error);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void LogWarning(String warning){
+        try{
+            fh.setFormatter(formatter);
+            logger.setLevel(Level.WARNING);
+            logger.warning(warning);
+        }
+        catch (SecurityException e) {
             e.printStackTrace();
         }
     }

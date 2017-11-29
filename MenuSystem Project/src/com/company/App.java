@@ -107,6 +107,7 @@ public class App implements Application, EventListener  {
         OnApplicationClose.RegisterListener(this);
 
         mainMenu.SetApplication(this);
+        mainMenu.SetMenuName("Main Menu");
         mainMenu.SetHeader("This is the main menu");
         mainMenu.AddOption("Get Current Date", () -> {
             out.println(LocalDateTime.now());
@@ -115,6 +116,7 @@ public class App implements Application, EventListener  {
         mainMenu.AddOption("Sum to Current LocalDateTime", () -> TemporalUnitsMenu);
         mainMenu.AddOption("Exit", () ->  ExitMenu);
 
+        ExitMenu.SetMenuName("Exit Menu");
         ExitMenu.SetApplication(this);
         ExitMenu.AddOption("Press Enter", () -> {
             SetState(State.closed);
@@ -137,11 +139,13 @@ public class App implements Application, EventListener  {
             }
         }
 
+        TemporalUnitsMenu.SetMenuName("Temporal Menu Units");
         TemporalUnitsMenu.SetApplication(this);
         TemporalUnitsMenu.SetRows(3);
         TemporalUnitsMenu.AddOption("Back", () -> mainMenu);
         TemporalUnitsMenu.SetHeader("Choose what Chronological part you want to Sum");
 
+        dateMenu.SetMenuName("Date Menu");
         dateMenu.SetApplication(this);
         dateMenu.AddOption("Back", () -> mainMenu);
 

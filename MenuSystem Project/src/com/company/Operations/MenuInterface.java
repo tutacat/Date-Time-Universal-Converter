@@ -10,4 +10,6 @@ public interface MenuInterface {
     void SetRows(int n);
 
     void SetApplication(Application application);
+
+    void SetMenuName(String name);
 }
