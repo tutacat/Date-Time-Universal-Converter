@@ -4,6 +4,7 @@ public interface MenuInterface {
     boolean RemoveOption(Integer Option);
     void ProcessInput();
     void AddOption(String op, Executor<MenuInterface> o);
+    void AddExitOption(MenuInterface landingMenu);
     void Show(String decorator);
 
     void SetHeader(String header);
@@ -12,4 +13,5 @@ public interface MenuInterface {
     void SetApplication(Application application);
 
     void SetMenuName(String name);
+    String GetMenuName();
 }

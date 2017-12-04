@@ -10,7 +10,6 @@ import static com.company.Main.EMPTY_STRING;
 import static com.company.Utilities.ConsoleColors.AnsiColor.*;
 import static com.company.Utilities.ConsoleColors.AnsiColor.Modifier.Bold;
 import static com.company.Utilities.ConsoleColors.AnsiColor.Modifier.Regular;
-import static java.lang.Integer.parseInt;
 import static java.lang.System.in;
 import static java.lang.System.out;
 
@@ -30,6 +29,11 @@ public class Menu implements MenuInterface {
 
     public void SetMenuName(String menuName) {
         this.menuName = menuName;
+    }
+
+    @Override
+    public String GetMenuName() {
+        return this.menuName;
     }
 
     private int rows = 5;
@@ -56,8 +60,8 @@ public class Menu implements MenuInterface {
         functions = new ArrayList<>();
     }
 
-    public boolean RemoveOption(Integer option){
-        return functions.remove(option);
+    public boolean RemoveOption(Integer option) {
+        return functions.contains(option) && functions.remove(option);
     }
 
     public void ProcessInput() {
@@ -66,13 +70,21 @@ public class Menu implements MenuInterface {
         Scanner s = new Scanner(in);
         int cmd = 1;
         String line = s.nextLine();
-        if(GetSize() > 1 && line.length() == 0) {
+
+        if(Objects.equals(line, "") && GetSize() > 1) {
             return;
         }
-        if(GetSize() > 1 && line.length() >= 1){
-            cmd = parseInt(line);
+        else if(GetSize() >= 1 && line.length() >= 1){
+            try {
+               cmd = Integer.parseInt(line);
+            }
+            catch (NumberFormatException e) {
+                out.println("Input not recognized");
+                LogSystem.LogWarning("Input not recognized");
+                return;
+            }
         }
-        if(line.length() > String.valueOf(GetSize()).length() || Integer.parseInt(line) > GetSize()){
+        else if(GetSize() > 1){
             out.println("Input not recognized");
             LogSystem.LogWarning("Input not recognized");
             return;
@@ -85,6 +97,11 @@ public class Menu implements MenuInterface {
     public void AddOption(String op, Executor <MenuInterface> o) {
         functions.add(o);
         Options.put(GetSize(), op);
+    }
+
+    @Override
+    public void AddExitOption(MenuInterface landingMenu) {
+        AddOption("Exit", () -> landingMenu);
     }
 
     public void Show(String decorator) {

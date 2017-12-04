@@ -1,10 +1,15 @@
 package com.company.Operations;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 
-interface DateInterface{
-	LocalDate firstWeekDayOfXthYear(); //1º dia da semana de um dado ano
-	LocalDate xthDayOfXthYear();
+public interface DateInterface{
+
+    void SetCurrentLocalDate(LocalDate date);
+    LocalDate getCurrentLocalDate();
+
+	DayOfWeek firstWeekDayOfXthYear(); //1º dia da semana de um dado ano
+	int xthDayOfXthYear();
 	LocalDate xthDayOfXthWeek();
 	LocalDate daysLeftUntilXthDay(); //de hoje até ao dia x. pode ser interpretado como "dias até ao prazo"
 	LocalDate workDaysUntilDate();

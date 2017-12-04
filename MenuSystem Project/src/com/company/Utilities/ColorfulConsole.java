@@ -1,7 +1,5 @@
 package com.company.Utilities;
 
-import javax.print.DocFlavor;
-import java.util.Arrays;
 import java.util.Scanner;
 
 import static com.company.Main.EMPTY_STRING;
