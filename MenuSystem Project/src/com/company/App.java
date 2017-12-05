@@ -7,7 +7,7 @@ import com.company.Utilities.*;
 import static com.company.Utilities.ConsoleColors.AnsiColor.Modifier.Underline;
 import static com.company.Utilities.ConsoleColors.AnsiColor.Red;
 
-public class App implements Application, EventListener  {
+public class App implements Application, EventListener {
 
     public static App This;
 

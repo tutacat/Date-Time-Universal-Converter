@@ -43,9 +43,11 @@ public class Menus {
         //====================================================================================================
 
         //================================= DATES MENU =======================================================
+        date_menu.SetRows(2);
+
         date_menu.SetMenuName("Date Menu");
         date_menu.SetHeader("Menu that operate dates");
-        date_menu.AddOption("firstWeekDayOfXthYear", () -> {
+        date_menu.AddOption("First Week Day", () -> {
             LocalDate customDate = ChronoMenusUtilities.CreateLocalDate();
             dates.SetCurrentLocalDate(customDate);
             DayOfWeek dayOfWeek = dates.firstWeekDayOfXthYear();
@@ -55,11 +57,32 @@ public class Menus {
             return date_menu;
         });
 
-        date_menu.AddOption("Xth Day Of Xth Year", () -> {
+        date_menu.AddOption("Day of the Year", () -> {
             LocalDate customDate = ChronoMenusUtilities.CreateLocalDate();
             dates.SetCurrentLocalDate(customDate);
             String s = String.format("{0}The day of the Year of {1}%s {0}is {1}%d", customDate.format(DateTimeFormatter.ISO_DATE),
                     dates.xthDayOfXthYear());
+            ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
+            return date_menu;
+        });
+
+        date_menu.AddOption("Days Until", () -> {
+            LocalDate customDate = ChronoMenusUtilities.CreateLocalDate();
+            dates.SetCurrentLocalDate(customDate);
+            int res = dates.daysLeftUntilXthDay();
+            String s = String.format("{0}There are {1}%d {0}days until {1}%s", res, dates.getCurrentLocalDate()
+                    .format(DateTimeFormatter.ISO_DATE));
+            ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
+            return date_menu;
+        });
+
+        date_menu.AddOption("Working Days Until", () -> {
+            LocalDate customDate = ChronoMenusUtilities.CreateLocalDate();
+            dates.SetCurrentLocalDate(customDate);
+            int res = dates.workDaysUntilDate(5);
+            String s = String.format("{0}Working from {1}Monday {0}to {1}Friday\n" +
+                    "{0}There are {1}%d {0}Working Days until {1}%s", res, dates.getCurrentLocalDate()
+                    .format(DateTimeFormatter.ISO_DATE));
             ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
             return date_menu;
         });

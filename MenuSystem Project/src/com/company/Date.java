@@ -1,10 +1,12 @@
 package com.company;
 
 import com.company.Operations.DateInterface;
-import com.company.Utilities.Logger.LogSystem;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+
+import static java.time.LocalDate.now;
 
 public class Date implements DateInterface {
 
@@ -12,8 +14,7 @@ public class Date implements DateInterface {
 
     @Override
     public void SetCurrentLocalDate(LocalDate date) {
-        if(date == null) {
-            LogSystem.LogError("Parameter date cannot be null");
+    if(date == null) {
             return;
         }
         this.fedDate = date;
@@ -21,43 +22,57 @@ public class Date implements DateInterface {
 
     @Override
     public LocalDate getCurrentLocalDate() {
+        if(fedDate == null)
+            throw new NullPointerException();
         return fedDate;
     }
 
     @Override
     public DayOfWeek firstWeekDayOfXthYear() {
         if(fedDate == null)
-            return LocalDate.now().getDayOfWeek();
-
-        else {
-            int dayOfYear = fedDate.getDayOfYear();
-            LocalDate fstDayOfYearDate = fedDate.minusDays(dayOfYear - 1);
-            return fstDayOfYearDate.getDayOfWeek();
-        }
+            return now().getDayOfWeek();
+        int dayOfYear = fedDate.getDayOfYear();
+        LocalDate fstDayOfYearDate = fedDate.minusDays(dayOfYear - 1);
+        return fstDayOfYearDate.getDayOfWeek();
     }
 
     @Override
     public int xthDayOfXthYear() {
         if(fedDate == null)
-            return LocalDate.now().getDayOfYear();
-        else {
-            return fedDate.getDayOfYear();
+            return now().getDayOfYear();
+        return fedDate.getDayOfYear();
+    }
+
+    @Override
+    public int xthDayOfXthWeek() {
+        if(fedDate ==  null)
+            return now().getDayOfWeek().getValue();
+        return fedDate.getDayOfWeek().getValue();
+    }
+
+    @Override
+    public int daysLeftUntilXthDay() {
+        if(fedDate == null)
+            return 0;
+        if(now().isBefore(fedDate)) {
+            return Math.toIntExact(ChronoUnit.DAYS.between(now(), fedDate));
         }
+        return 0;
     }
 
     @Override
-    public LocalDate xthDayOfXthWeek() {
-        return null;
-    }
-
-    @Override
-    public LocalDate daysLeftUntilXthDay() {
-        return null;
-    }
-
-    @Override
-    public LocalDate workDaysUntilDate() {
-        return null;
+    public int workDaysUntilDate(int workDaysPerWeek) {
+        int totalWorkingDays = 0;
+        LocalDate plusDays = now();
+        if(fedDate.isBefore(now()))
+            return 0;
+        while (true){
+            plusDays = plusDays.plusDays(1);
+            if(plusDays.isEqual(fedDate))
+                return totalWorkingDays;
+            if(plusDays.getDayOfWeek().getValue() <= workDaysPerWeek)
+                totalWorkingDays++;
+        }
     }
 
     @Override

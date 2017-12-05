@@ -10,9 +10,9 @@ public interface DateInterface{
 
 	DayOfWeek firstWeekDayOfXthYear(); //1º dia da semana de um dado ano
 	int xthDayOfXthYear();
-	LocalDate xthDayOfXthWeek();
-	LocalDate daysLeftUntilXthDay(); //de hoje até ao dia x. pode ser interpretado como "dias até ao prazo"
-	LocalDate workDaysUntilDate();
+	int xthDayOfXthWeek();
+	int daysLeftUntilXthDay(); //de hoje até ao dia x. pode ser interpretado como "dias até ao prazo"
+	int workDaysUntilDate(int workDaysPerWeek);
 	LocalDate weekendDaysUntilDate();
 	LocalDate checkHoliday(); // arrayList com feriados nacionais?
 	LocalDate addDateToCurrentDate();

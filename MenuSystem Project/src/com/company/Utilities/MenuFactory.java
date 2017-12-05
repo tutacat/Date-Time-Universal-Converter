@@ -3,7 +3,6 @@ package com.company.Utilities;
 import com.company.Operations.Application;
 import com.company.Operations.Menu;
 import com.company.Operations.MenuInterface;
-import com.company.Utilities.Logger.LogSystem;
 
 import java.util.*;
 
@@ -40,7 +39,6 @@ public class MenuFactory {
 
     static private MenuInterface createMenu(Application app, String menuName){
         if(app == null) {
-            LogSystem.LogError("Cannot create a Menu with a null application");
             throw new NullPointerException();
         }
 

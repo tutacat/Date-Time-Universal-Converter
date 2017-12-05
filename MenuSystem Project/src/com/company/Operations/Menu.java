@@ -2,7 +2,6 @@ package com.company.Operations;
 
 import com.company.App;
 import com.company.Utilities.ColorfulConsole;
-import com.company.Utilities.Logger.LogSystem;
 
 import java.util.*;
 
@@ -39,10 +38,12 @@ public class Menu implements MenuInterface {
     private int rows = 5;
     public void SetRows(int n){
         rows = n;
-        if(rows < 0)
+        if(rows <= 0)
             rows = 1;
-        else if(rows > GetSize())
-            rows = GetSize() / 2;
+        else if(rows > GetSize()) {
+            if(GetSize() != 0)
+                rows = GetSize();
+        }
     }
 
     public void SetApplication(Application application) {
@@ -80,17 +81,15 @@ public class Menu implements MenuInterface {
             }
             catch (NumberFormatException e) {
                 out.println("Input not recognized");
-                LogSystem.LogWarning("Input not recognized");
                 return;
             }
         }
         else if(GetSize() > 1){
             out.println("Input not recognized");
-            LogSystem.LogWarning("Input not recognized");
             return;
         }
 
-        LogSystem.WriteLog("Current Menu -> " + this.menuName + " | User Input -> " + cmd);
+        //LogSystem.WriteLog("Current Menu -> " + this.menuName + " | User Input -> " + cmd);
         app.setActiveMenu((MenuInterface) functions.get(cmd - 1).Run());
     }
 
