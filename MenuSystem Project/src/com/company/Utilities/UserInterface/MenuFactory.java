@@ -1,7 +1,6 @@
-package com.company.Utilities;
+package com.company.Utilities.UserInterface;
 
 import com.company.Operations.Application;
-import com.company.Operations.Menu;
 import com.company.Operations.MenuInterface;
 
 import java.util.*;

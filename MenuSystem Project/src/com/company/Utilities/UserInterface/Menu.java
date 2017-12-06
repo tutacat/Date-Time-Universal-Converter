@@ -1,14 +1,17 @@
-package com.company.Operations;
+package com.company.Utilities.UserInterface;
 
 import com.company.App;
-import com.company.Utilities.ColorfulConsole;
+import com.company.Operations.Application;
+import com.company.Operations.Executor;
+import com.company.Operations.MenuInterface;
+import com.company.Utilities.Colorfull_Console.ColorfulConsole;
 
 import java.util.*;
 
 import static com.company.Main.EMPTY_STRING;
-import static com.company.Utilities.ConsoleColors.AnsiColor.*;
-import static com.company.Utilities.ConsoleColors.AnsiColor.Modifier.Bold;
-import static com.company.Utilities.ConsoleColors.AnsiColor.Modifier.Regular;
+import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.*;
+import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Modifier.Bold;
+import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Modifier.Regular;
 import static java.lang.System.in;
 import static java.lang.System.out;
 

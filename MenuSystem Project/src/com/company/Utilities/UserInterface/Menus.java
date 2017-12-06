@@ -1,9 +1,11 @@
-package com.company.Utilities;
+package com.company.Utilities.UserInterface;
 
 import com.company.Date;
 import com.company.Operations.Application;
 import com.company.Operations.DateInterface;
 import com.company.Operations.MenuInterface;
+import com.company.Utilities.ChronoMenusUtilities;
+import com.company.Utilities.Colorfull_Console.ColorfulConsole;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -11,9 +13,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.Locale;
 
-import static com.company.Utilities.ConsoleColors.AnsiColor.Green;
-import static com.company.Utilities.ConsoleColors.AnsiColor.Modifier.Regular;
-import static com.company.Utilities.ConsoleColors.AnsiColor.Red;
+import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Green;
+import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Modifier.Regular;
+import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Red;
 
 public class Menus {
 
@@ -49,8 +51,7 @@ public class Menus {
         date_menu.SetHeader("Menu that operate dates");
         date_menu.AddOption("First Week Day", () -> {
             LocalDate customDate = ChronoMenusUtilities.CreateLocalDate();
-            dates.SetCurrentLocalDate(customDate);
-            DayOfWeek dayOfWeek = dates.firstWeekDayOfXthYear();
+            DayOfWeek dayOfWeek = customDate.query(dates.firstWeekDayOfXthYear());
             String formatted = String.format("{0}The First day of the week in the year of {1}%d {0}is: {1}%s",
                     customDate.getYear(), dayOfWeek.getDisplayName(TextStyle.FULL, Locale.UK));
             ColorfulConsole.WriteLineFormatted(formatted, Green(Regular), Red(Regular));
@@ -59,18 +60,17 @@ public class Menus {
 
         date_menu.AddOption("Day of the Year", () -> {
             LocalDate customDate = ChronoMenusUtilities.CreateLocalDate();
-            dates.SetCurrentLocalDate(customDate);
-            String s = String.format("{0}The day of the Year of {1}%s {0}is {1}%d", customDate.format(DateTimeFormatter.ISO_DATE),
-                    dates.xthDayOfXthYear());
+            Integer query = customDate.query(dates.xthDayOfXthYear());
+            String s = String.format("{0}The day of the Year of {1}%s {0}is {1}%d",
+                    customDate.format(DateTimeFormatter.ISO_DATE), query);
             ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
             return date_menu;
         });
 
         date_menu.AddOption("Days Until", () -> {
             LocalDate customDate = ChronoMenusUtilities.CreateLocalDate();
-            dates.SetCurrentLocalDate(customDate);
-            int res = dates.daysLeftUntilXthDay();
-            String s = String.format("{0}There are {1}%d {0}days until {1}%s", res, dates.getCurrentLocalDate()
+            int res = customDate.query(dates.daysLeftUntilXthDay());
+            String s = String.format("{0}There are {1}%d {0}days until {1}%s", res, customDate
                     .format(DateTimeFormatter.ISO_DATE));
             ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
             return date_menu;
@@ -78,11 +78,10 @@ public class Menus {
 
         date_menu.AddOption("Working Days Until", () -> {
             LocalDate customDate = ChronoMenusUtilities.CreateLocalDate();
-            dates.SetCurrentLocalDate(customDate);
-            int res = dates.workDaysUntilDate(5);
+            int res = customDate.query(dates.workDaysUntilDate());
             String s = String.format("{0}Working from {1}Monday {0}to {1}Friday\n" +
-                    "{0}There are {1}%d {0}Working Days until {1}%s", res, dates.getCurrentLocalDate()
-                    .format(DateTimeFormatter.ISO_DATE));
+                    "{0}There are {1}%d {0}Working Days until {1}%s",
+                    res, customDate.format(DateTimeFormatter.ofPattern("d MMM uuuu")));
             ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
             return date_menu;
         });

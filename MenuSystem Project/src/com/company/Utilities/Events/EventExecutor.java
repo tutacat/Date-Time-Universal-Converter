@@ -1,10 +1,12 @@
-package com.company.Utilities;
+package com.company.Utilities.Events;
+
+import com.company.Utilities.Colorfull_Console.ColorfulConsole;
 
 import java.lang.reflect.Method;
 import java.util.*;
 
-import static com.company.Utilities.ConsoleColors.AnsiColor.Modifier.Underline;
-import static com.company.Utilities.ConsoleColors.AnsiColor.Red;
+import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Modifier.Underline;
+import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Red;
 
 public class EventExecutor {
 
@@ -14,7 +16,7 @@ public class EventExecutor {
 
 
     private Map<Class, Collection<EventHandler>> bindings = new HashMap<>();
-    private Set<EventListener> registeredListeners = new HashSet <>();
+    private Set<com.company.Utilities.Events.EventListener> registeredListeners = new HashSet <>();
 
     private final Delegate delegate;
     private final int code;
@@ -28,11 +30,11 @@ public class EventExecutor {
         return bindings;
     }
 
-    public Set <EventListener> getRegisteredListeners() {
+    public Set <com.company.Utilities.Events.EventListener> getRegisteredListeners() {
         return registeredListeners;
     }
 
-    public void RegisterListener(final EventListener listener) {
+    public void RegisterListener(final com.company.Utilities.Events.EventListener listener) {
         if (registeredListeners.contains(listener)) {
             ColorfulConsole.WriteLine(Red(Underline), "Already Registered Listener");
             return;
@@ -84,7 +86,7 @@ public class EventExecutor {
     }
 
 
-    public void removeListener(EventListener listener) {
+    public void removeListener(com.company.Utilities.Events.EventListener listener) {
 
         synchronized (this) {
             if (!registeredListeners.contains(listener))

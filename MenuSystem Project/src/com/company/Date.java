@@ -1,78 +1,91 @@
 package com.company;
 
 import com.company.Operations.DateInterface;
+import com.company.Utilities.Temporals;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
+import java.time.temporal.TemporalQuery;
 
 import static java.time.LocalDate.now;
+import static java.time.temporal.ChronoUnit.DAYS;
 
 public class Date implements DateInterface {
 
-    private LocalDate fedDate;
+    private final TemporalQuery <DayOfWeek> xthDayOfXthWeekQuery = (temporal) -> {
+        LocalDate date = tryGetValidDate(temporal);
+        if (date == null)
+            return DayOfWeek.from(now());
+        return DayOfWeek.from(date);
+    };
+
+    public TemporalQuery<DayOfWeek> xthDayOfXthWeek() {
+        return xthDayOfXthWeekQuery;
+    }
+
+    private final TemporalQuery<DayOfWeek> firstWeekDayOfXthYearQuery =
+            (temporal) -> {
+                LocalDate date = tryGetValidDate(temporal);
+                if(date == null)
+                    return null;
+                LocalDate adjusted = (LocalDate) TemporalAdjusters.firstDayOfYear().adjustInto(date);
+                return DayOfWeek.from(adjusted);
+            };
 
     @Override
-    public void SetCurrentLocalDate(LocalDate date) {
-    if(date == null) {
-            return;
+    public TemporalQuery <DayOfWeek> firstWeekDayOfXthYear() {
+        return firstWeekDayOfXthYearQuery;
+    }
+
+    private final TemporalQuery<Integer> xthDayOfXthYearQuery =
+            (temporal) -> {
+                LocalDate date = tryGetValidDate(temporal);
+                if(date == null)
+                    return -1;
+                return date.getDayOfYear();
+            };
+
+    @Override
+    public TemporalQuery <Integer> xthDayOfXthYear() {
+        return xthDayOfXthYearQuery;
+    }
+
+    private final TemporalQuery<Integer> daysLeftUntilXthDayQuery =
+            (temporal) ->{
+                LocalDate date = tryGetValidDate(temporal);
+                if(date == null)
+                    return Integer.MIN_VALUE;
+                if(now().isBefore(date))
+                    return Math.toIntExact(DAYS.between(now(), date));
+                return 0;
+            };
+
+    @Override
+    public TemporalQuery<Integer> daysLeftUntilXthDay() {
+        return daysLeftUntilXthDayQuery;
+    }
+
+    private final TemporalQuery<Integer> workDaysUntilDateQuery = (temporal) -> {
+        LocalDate start = now();
+        LocalDate end = tryGetValidDate(temporal);
+        if(end == null)
+            return Integer.MIN_VALUE;
+
+        int businessDays = 0;
+        LocalDate date = start.minusDays(1);
+        while (date.isBefore(end)){
+            //Adjust into the next working day
+            date = date.with(Temporals.nextWorkingDay());
+            if(date.isBefore(end))
+                businessDays++;
         }
-        this.fedDate = date;
-    }
+        return businessDays;
+    };
 
     @Override
-    public LocalDate getCurrentLocalDate() {
-        if(fedDate == null)
-            throw new NullPointerException();
-        return fedDate;
-    }
-
-    @Override
-    public DayOfWeek firstWeekDayOfXthYear() {
-        if(fedDate == null)
-            return now().getDayOfWeek();
-        int dayOfYear = fedDate.getDayOfYear();
-        LocalDate fstDayOfYearDate = fedDate.minusDays(dayOfYear - 1);
-        return fstDayOfYearDate.getDayOfWeek();
-    }
-
-    @Override
-    public int xthDayOfXthYear() {
-        if(fedDate == null)
-            return now().getDayOfYear();
-        return fedDate.getDayOfYear();
-    }
-
-    @Override
-    public int xthDayOfXthWeek() {
-        if(fedDate ==  null)
-            return now().getDayOfWeek().getValue();
-        return fedDate.getDayOfWeek().getValue();
-    }
-
-    @Override
-    public int daysLeftUntilXthDay() {
-        if(fedDate == null)
-            return 0;
-        if(now().isBefore(fedDate)) {
-            return Math.toIntExact(ChronoUnit.DAYS.between(now(), fedDate));
-        }
-        return 0;
-    }
-
-    @Override
-    public int workDaysUntilDate(int workDaysPerWeek) {
-        int totalWorkingDays = 0;
-        LocalDate plusDays = now();
-        if(fedDate.isBefore(now()))
-            return 0;
-        while (true){
-            plusDays = plusDays.plusDays(1);
-            if(plusDays.isEqual(fedDate))
-                return totalWorkingDays;
-            if(plusDays.getDayOfWeek().getValue() <= workDaysPerWeek)
-                totalWorkingDays++;
-        }
+    public TemporalQuery<Integer> workDaysUntilDate() {
+        return workDaysUntilDateQuery;
     }
 
     @Override

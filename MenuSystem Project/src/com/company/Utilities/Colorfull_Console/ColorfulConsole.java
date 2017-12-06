@@ -1,10 +1,10 @@
-package com.company.Utilities;
+package com.company.Utilities.Colorfull_Console;
 
 import java.util.Scanner;
 
 import static com.company.Main.EMPTY_STRING;
-import static com.company.Utilities.ConsoleColors.AnsiColor;
-import static com.company.Utilities.ConsoleColors.RESET;
+import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor;
+import static com.company.Utilities.Colorfull_Console.ConsoleColors.RESET;
 import static java.lang.System.in;
 import static java.lang.System.out;
 

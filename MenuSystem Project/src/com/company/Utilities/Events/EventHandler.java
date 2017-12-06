@@ -1,4 +1,4 @@
-package com.company.Utilities;
+package com.company.Utilities.Events;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

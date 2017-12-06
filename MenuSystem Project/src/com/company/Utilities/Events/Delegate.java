@@ -1,4 +1,4 @@
-package com.company.Utilities;
+package com.company.Utilities.Events;
 
 public class Delegate {
 

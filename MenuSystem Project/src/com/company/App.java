@@ -2,10 +2,16 @@ package com.company;
 
 import com.company.Operations.Application;
 import com.company.Operations.MenuInterface;
-import com.company.Utilities.*;
+import com.company.Utilities.Colorfull_Console.ColorfulConsole;
+import com.company.Utilities.Events.Delegate;
+import com.company.Utilities.Events.Event;
+import com.company.Utilities.Events.EventExecutor;
+import com.company.Utilities.Events.EventListener;
+import com.company.Utilities.UserInterface.MenuFactory;
+import com.company.Utilities.UserInterface.Menus;
 
-import static com.company.Utilities.ConsoleColors.AnsiColor.Modifier.Underline;
-import static com.company.Utilities.ConsoleColors.AnsiColor.Red;
+import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Modifier.Underline;
+import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Red;
 
 public class App implements Application, EventListener {
 
