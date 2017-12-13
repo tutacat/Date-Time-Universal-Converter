@@ -5,6 +5,9 @@ import com.company.Operations.Application;
 import com.company.Operations.Executor;
 import com.company.Operations.MenuInterface;
 import com.company.Utilities.Colorfull_Console.ColorfulConsole;
+import com.company.Utilities.Events.Delegate;
+import com.company.Utilities.Events.EventExecutor;
+import com.company.Utilities.Events.EventListener;
 
 import java.util.*;
 
@@ -15,7 +18,7 @@ import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Mo
 import static java.lang.System.in;
 import static java.lang.System.out;
 
-public class Menu implements MenuInterface {
+public class Menu implements MenuInterface, EventListener {
 
     private Application app;
 
@@ -28,6 +31,8 @@ public class Menu implements MenuInterface {
 
     private String menuHeader = EMPTY_STRING;
     private String menuName = "DefaultMenu";
+
+    public EventExecutor onMenuChanged = new EventExecutor(0, new Delegate(void.class));
 
     public void SetMenuName(String menuName) {
         this.menuName = menuName;
@@ -62,6 +67,12 @@ public class Menu implements MenuInterface {
     {
         Options = new Hashtable<>();
         functions = new ArrayList<>();
+
+        onMenuChanged.RegisterListener(this);
+    }
+
+    public void OnMenuChanged(){
+        //Menu Has Changed
     }
 
     public boolean RemoveOption(Integer option) {
@@ -93,7 +104,11 @@ public class Menu implements MenuInterface {
         }
 
         //LogSystem.WriteLog("Current Menu -> " + this.menuName + " | User Input -> " + cmd);
-        app.setActiveMenu((MenuInterface) functions.get(cmd - 1).Run());
+        MenuInterface run = (MenuInterface) functions.get(cmd - 1).Run();
+        if(run != this){
+            onMenuChanged.Invoke();
+        }
+        app.setActiveMenu(run);
     }
 
     public void AddOption(String op, Executor <MenuInterface> o) {
@@ -129,7 +144,7 @@ public class Menu implements MenuInterface {
             int res = Options.size() / rows;
             for (int j = 0; j <= res; j++) {
                 for (; i <= Options.size();) {
-                    f.append(String.format("{0}[%d] {1}%-10s\t", i, Options.get(i - 1)));
+                    f.append(String.format("{0}[%d] {1}%-20s\t", i, Options.get(i - 1)));
                     aux++;
                     if(aux == rows) {
                         i++;
