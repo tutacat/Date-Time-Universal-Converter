@@ -40,7 +40,7 @@ public class Menus {
             dates = new Date();
             return date_menu;
         });
-        main_menu.AddOption("Time Zone Operations", () -> date_menu);
+        main_menu.AddOption("Time Zone Operations", () -> main_menu);
         main_menu.AddExitOption(exit_menu);
         //====================================================================================================
 
@@ -86,6 +86,15 @@ public class Menus {
             return date_menu;
         });
 
+        date_menu.AddOption("Weekend Days Until", () -> {
+            LocalDate customDate = ChronoMenusUtilities.CreateLocalDate();
+            int res = customDate.query(dates.weekendDaysUntilDate());
+            String s = String.format("{0}There are {1}%d {0}Weekend Days until {1}%s",
+                    res, customDate.format(DateTimeFormatter.ofPattern("d MMM uuuu")));
+            ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
+            return date_menu;
+        });
+
         date_menu.AddExitOption(main_menu);
         //====================================================================================================
 
@@ -95,9 +104,5 @@ public class Menus {
             return exit_menu;
         });
         //====================================================================================================
-    }
-
-    private static void CreateMainMenu(){
-
     }
 }

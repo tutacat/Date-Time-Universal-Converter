@@ -40,14 +40,14 @@ public class ChronoMenusUtilities {
     public static LocalDateTime CreateLocalDateTime(){
         LocalDate date = CreateLocalDate();
         LocalTime time = CreateLocalTime();
-
         return LocalDateTime.of(date, time);
     }
 
     static int validateInput(ChronoUnit unit){
         int v;
         while (true){
-            ColorfulConsole.Write(Green(Underline), String.format("%s:", unit.toString()));
+            ColorfulConsole.Write(Green(Underline), String.format("%s:",
+                    unit.toString().replace('s', ' ')));
             v = ColorfulConsole.ReadNextInt();
             boolean b = Temporals.valueIsValid(unit, v);
             if(b) break;

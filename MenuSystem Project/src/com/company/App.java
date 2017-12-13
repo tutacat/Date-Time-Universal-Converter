@@ -101,6 +101,9 @@ public class App implements Application, EventListener {
 
         Menus.CreateMenus(this);
 
+        /*
+        * Modo Inicial = Main Menu
+        * */
         setActiveMenu(MenuFactory.getExistingMenu("Main Menu"));
     }
 

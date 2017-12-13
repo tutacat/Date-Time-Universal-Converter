@@ -1,6 +1,6 @@
 package com.company.Operations;
 
-interface Chronometer(){
+interface Chronometer{
 	void start();
 	long stop();
 	void lap();

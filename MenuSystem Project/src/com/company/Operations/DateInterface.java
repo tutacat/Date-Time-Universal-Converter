@@ -20,7 +20,7 @@ public interface DateInterface{
         return date;
     }
 
-    default LocalDate beginningOfYear(int year){
+    static LocalDate beginningOfYear(int year){
         return LocalDate.of(year, JANUARY, 1);
     }
 
@@ -29,7 +29,7 @@ public interface DateInterface{
     TemporalQuery<DayOfWeek> xthDayOfXthWeek();
     TemporalQuery<Integer> daysLeftUntilXthDay(); //de hoje até ao dia x. pode ser interpretado como "dias até ao prazo"
     TemporalQuery<Integer> workDaysUntilDate();
-	LocalDate weekendDaysUntilDate();
+	TemporalQuery<Integer> weekendDaysUntilDate();
 	LocalDate checkHoliday(); // arrayList com feriados nacionais?
 	LocalDate addDateToCurrentDate();
 	LocalDate subtractDateFromCurrentDate();

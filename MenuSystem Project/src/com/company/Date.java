@@ -5,13 +5,32 @@ import com.company.Utilities.Temporals;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.TemporalQuery;
+import java.time.temporal.TemporalUnit;
 
 import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 public class Date implements DateInterface {
+
+    private TemporalUnit currentUnit = null;
+    private long ammount = 0;
+
+    private int CheckAllDays(LocalDate start, LocalDate end, TemporalAdjuster adjuster){
+        if(start == null || end == null)
+            throw new NullPointerException();
+
+        int resultDays = 0;
+        LocalDate date = start.minusDays(1);
+        while (date.isBefore(end)){
+            date = date.with(adjuster);
+            if(date.isBefore(end))
+                resultDays++;
+        }
+        return resultDays;
+    }
 
     private final TemporalQuery <DayOfWeek> xthDayOfXthWeekQuery = (temporal) -> {
         LocalDate date = tryGetValidDate(temporal);
@@ -71,16 +90,7 @@ public class Date implements DateInterface {
         LocalDate end = tryGetValidDate(temporal);
         if(end == null)
             return Integer.MIN_VALUE;
-
-        int businessDays = 0;
-        LocalDate date = start.minusDays(1);
-        while (date.isBefore(end)){
-            //Adjust into the next working day
-            date = date.with(Temporals.nextWorkingDay());
-            if(date.isBefore(end))
-                businessDays++;
-        }
-        return businessDays;
+        return CheckAllDays(start, end, Temporals.nextWorkingDay());
     };
 
     @Override
@@ -88,9 +98,17 @@ public class Date implements DateInterface {
         return workDaysUntilDateQuery;
     }
 
+    private final TemporalQuery<Integer> weekendDaysUntilDateQuery = (temporal) -> {
+        LocalDate start = now();
+        LocalDate end = tryGetValidDate(temporal);
+        if(end == null)
+            return Integer.MIN_VALUE;
+        return CheckAllDays(start, end, Temporals.nextWeekendDay());
+    };
+
     @Override
-    public LocalDate weekendDaysUntilDate() {
-        return null;
+    public TemporalQuery<Integer> weekendDaysUntilDate() {
+        return weekendDaysUntilDateQuery;
     }
 
     @Override

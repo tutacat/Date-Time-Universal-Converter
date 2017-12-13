@@ -103,7 +103,12 @@ public class Menu implements MenuInterface {
 
     @Override
     public void AddExitOption(MenuInterface landingMenu) {
-        AddOption("Exit", () -> landingMenu);
+        AddOption("Exit", () -> {
+            /*TODO: Should i call Garbage Collector here?*/
+            System.gc();
+
+            return landingMenu;
+        });
     }
 
     public void Show(String decorator) {

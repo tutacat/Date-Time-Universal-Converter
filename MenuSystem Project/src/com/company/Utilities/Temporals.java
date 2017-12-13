@@ -25,6 +25,27 @@ public class Temporals {
         return Adjuster.PREVIOUS_WORKING;
     }
 
+    public static TemporalAdjuster nextWeekendDay(){
+        return WeekendAdjuster.NEXT_WEEKEND;
+    }
+
+    private static enum WeekendAdjuster implements TemporalAdjuster {
+        /**
+         * Adjust into the next weekend
+         * Start of Saturday
+         */
+        NEXT_WEEKEND {
+            @Override
+            public Temporal adjustInto(Temporal temporal) {
+                int dow = temporal.get(DAY_OF_WEEK);
+                if(dow == 6 || dow == 7){
+                    return temporal.plus(dow, DAYS);
+                }
+                return temporal.plus((7 - 1) - dow, DAYS);
+            }
+        },
+    }
+
     //-----------------------------------------------------------------------
     /**
      * Enum implementing the adjusters.
