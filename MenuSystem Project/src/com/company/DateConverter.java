@@ -1,6 +1,7 @@
 package com.company;
 
 import com.company.Operations.IDateConverter;
+import com.company.Utilities.Temporals;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -34,6 +35,6 @@ public class DateConverter implements IDateConverter {
     public TemporalAccessor toTimeZone(TemporalAccessor time, ZoneId current, ZoneId newZone) {
         LocalDateTime ldt = LocalDateTime.from(time);
         ZonedDateTime zonedDateTime = ZonedDateTime.of(ldt, current);
-        return zonedDateTime.withZoneSameInstant(newZone);
+        return Temporals.timeAtTimeZone(newZone).adjustInto(zonedDateTime);
     }
 }

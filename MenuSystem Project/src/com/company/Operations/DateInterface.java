@@ -31,8 +31,8 @@ public interface DateInterface{
     TemporalQuery<Integer> workDaysUntilDate();
 	TemporalQuery<Integer> weekendDaysUntilDate();
 	LocalDate checkHoliday(); // arrayList com feriados nacionais?
-	LocalDate addDateToCurrentDate();
-	LocalDate subtractDateFromCurrentDate();
+    TemporalQuery<TemporalAccessor> addDateToCurrentDate(TemporalAccessor dateToAdd);
+    TemporalQuery<TemporalAccessor> subtractDateFromCurrentDate(TemporalAccessor dateToAdd);
 	LocalDate differenceBetweenDates();
 	//TBA? podemos fazer o ano que tem menos dias úteis, por exemplo
 }

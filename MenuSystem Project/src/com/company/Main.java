@@ -9,6 +9,7 @@ public class Main {
     private static Application app;
 
     public static void main(String[] args) {
+
         app = new App();
         app.setName("Time Calculator");
         app.Run();

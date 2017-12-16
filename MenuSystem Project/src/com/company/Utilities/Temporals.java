@@ -10,14 +10,35 @@ import static java.time.temporal.ChronoUnit.DAYS;
 public class Temporals {
 
     public static TemporalAdjuster timeAtTimeZone(ZoneId id){
-        return new TemporalAdjuster() {
-            @Override
-            public Temporal adjustInto(Temporal temporal) {
-                LocalDateTime from = LocalDateTime.from(temporal);
-                Temporal temporal1 = id.getRules().getOffset(from).adjustInto(from);
-                return temporal1;
-            }
+        return temporal -> {
+            LocalDateTime from = LocalDateTime.from(temporal);
+            Temporal temporal1 = id.getRules().getOffset(from).adjustInto(from);
+            return temporal1;
         };
+    }
+
+    public static TemporalAccessor addTemporalToTemporal(TemporalAccessor temporal, TemporalAccessor toAdd){
+        LocalDateTime ldt = LocalDateTime.from(temporal);
+        LocalDateTime toAddLdt = LocalDateTime.from(toAdd);
+        return ldt.plusNanos(toAddLdt.getNano())
+                .plusSeconds(toAddLdt.getSecond())
+                .plusMinutes(toAddLdt.getMinute())
+                .plusHours(toAddLdt.getHour())
+                .plusDays(toAddLdt.getDayOfYear())
+                .plusMonths(toAddLdt.getMonthValue())
+                .plusYears(toAddLdt.getYear());
+    }
+
+    public static TemporalAccessor subtractTemporalToTemporal(TemporalAccessor temporal, TemporalAccessor toSubtract){
+        LocalDateTime ldt = LocalDateTime.from(temporal);
+        LocalDateTime toAddLdt = LocalDateTime.from(toSubtract);
+        return ldt.minusNanos(toAddLdt.getNano())
+                .minusSeconds(toAddLdt.getSecond())
+                .minusMinutes(toAddLdt.getMinute())
+                .minusHours(toAddLdt.getHour())
+                .minusDays(toAddLdt.getDayOfYear())
+                .minusMonths(toAddLdt.getMonthValue())
+                .minusYears(toAddLdt.getYear());
     }
 
     /*TODO: Add support for a more generic working days

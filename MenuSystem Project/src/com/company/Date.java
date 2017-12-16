@@ -5,18 +5,13 @@ import com.company.Utilities.Temporals;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.temporal.TemporalAdjuster;
-import java.time.temporal.TemporalAdjusters;
-import java.time.temporal.TemporalQuery;
-import java.time.temporal.TemporalUnit;
+import java.time.temporal.*;
 
+import static java.time.LocalDate.from;
 import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 public class Date implements DateInterface {
-
-    private TemporalUnit currentUnit = null;
-    private long ammount = 0;
 
     private int CheckAllDays(LocalDate start, LocalDate end, TemporalAdjuster adjuster){
         if(start == null || end == null)
@@ -117,13 +112,20 @@ public class Date implements DateInterface {
     }
 
     @Override
-    public LocalDate addDateToCurrentDate() {
-        return null;
+    public TemporalQuery <TemporalAccessor> addDateToCurrentDate(TemporalAccessor dateToAdd)
+    {
+        return temporal -> {
+            LocalDate date = from(temporal);
+            return LocalDate.from(Temporals.addTemporalToTemporal(date, dateToAdd));
+        };
     }
 
     @Override
-    public LocalDate subtractDateFromCurrentDate() {
-        return null;
+    public TemporalQuery <TemporalAccessor> subtractDateFromCurrentDate(TemporalAccessor dateToSubtract) {
+        return temporal -> {
+            LocalDate date  = from(dateToSubtract);
+            return LocalDate.from(Temporals.subtractTemporalToTemporal(date, dateToSubtract));
+        };
     }
 
     @Override
