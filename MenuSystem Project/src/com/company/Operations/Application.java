@@ -27,7 +27,7 @@ public interface Application {
      *
      * Getting and setting the current active menu!
      * */
-    void setActiveMenu(MenuInterface menu);
+    void setActiveMenu(MenuInterface menu, Object usable);
     MenuInterface getActiveMenu();
 
     void SetState(State state);

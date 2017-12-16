@@ -49,8 +49,13 @@ public class ChronoMenusUtilities {
             ColorfulConsole.Write(Green(Underline), String.format("%s:",
                     unit.toString().replace('s', ' ')));
             v = ColorfulConsole.ReadNextInt();
+            if(v == -1) {
+                ColorfulConsole.Write(Red(Underline), "Value not valid\n");
+                continue;
+            }
             boolean b = Temporals.valueIsValid(unit, v);
-            if(b) break;
+            if(b)
+                break;
             ColorfulConsole.Write(Red(Underline), unit.toString() + " Value not valid\n");
         }
         return v;

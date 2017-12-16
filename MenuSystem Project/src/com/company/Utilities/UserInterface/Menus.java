@@ -9,6 +9,7 @@ import com.company.Operations.MenuInterface;
 import com.company.Utilities.ChronoMenusUtilities;
 import com.company.Utilities.Colorfull_Console.ColorfulConsole;
 import com.company.Utilities.Events.EventListener;
+import com.company.Utilities.Tuple;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -27,9 +28,6 @@ public class Menus implements EventListener {
 
     private static DateInterface dates;
     private static IDateConverter dateConverter;
-
-    private static TemporalUnit converterTemporal;
-    private static int amount;
 
     public static void CreateMenus(Application app)
     {
@@ -81,39 +79,37 @@ public class Menus implements EventListener {
             return date_menu;
         });
 
-        date_menu.AddOption("Days Until", () -> {
+        date_menu.AddOption(() -> {
             LocalDate customDate = ChronoMenusUtilities.CreateLocalDate();
             int res = customDate.query(dates.daysLeftUntilXthDay());
             String s = String.format("{0}There are {1}%d {0}days until {1}%s", res, customDate
                     .format(DateTimeFormatter.ISO_DATE));
             ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
-            converterTemporal = ChronoUnit.DAYS;
-            amount = res;
-            return converter_Menu;
-        });
 
-        date_menu.AddOption("Working Days Until", () -> {
+            /**
+             * This is a example when we want to send some info to the result menu
+             * */
+            return new Tuple<>(converter_Menu, new Object[]{  ChronoUnit.DAYS, res } );
+        }, "Working Days Until");
+
+        date_menu.AddOption(() -> {
             LocalDate customDate = ChronoMenusUtilities.CreateLocalDate();
             int res = customDate.query(dates.workDaysUntilDate());
             String s = String.format("{0}Working from {1}Monday {0}to {1}Friday\n" +
                     "{0}There are {1}%d {0}Working Days until {1}%s",
                     res, customDate.format(DateTimeFormatter.ofPattern("d MMM uuuu")));
             ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
-            converterTemporal = ChronoUnit.DAYS;
-            amount = res;
-            return converter_Menu;
-        });
+            return new Tuple<>(converter_Menu, new Object[]{  ChronoUnit.DAYS, res } );
+        }, "Working Days Until");
 
-        date_menu.AddOption("Weekend Days Until", () -> {
+        date_menu.AddOption(() -> {
             LocalDate customDate = ChronoMenusUtilities.CreateLocalDate();
             int res = customDate.query(dates.weekendDaysUntilDate());
             String s = String.format("{0}There are {1}%d {0}Weekend Days until {1}%s",
                     res, customDate.format(DateTimeFormatter.ofPattern("d MMM uuuu")));
             ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
-            converterTemporal = ChronoUnit.DAYS;
-            amount = res;
-            return converter_Menu;
-        });
+            return new Tuple<>(converter_Menu, new Object[]{  ChronoUnit.DAYS, res } );
+        }, "Holiday Days Until");
 
         date_menu.AddExitOption(main_menu);
         //====================================================================================================
@@ -121,15 +117,21 @@ public class Menus implements EventListener {
         //================================= Converter Menu ========================================================
         converter_Menu.AddOption("Convert to Milliseconds", () ->
         {
-            long i = dateConverter.toMilliseconds(converterTemporal, amount);
+            Object[] arg = (Object[]) converter_Menu.getArg();
+            TemporalUnit temporalUnit = (TemporalUnit) arg[0];
+            int amount = (int) arg[1];
+            long i = dateConverter.toMilliseconds((TemporalUnit) arg[0], amount);
             String s = String.format("{1}%d {0}%s are equivalent to: {1}%d {0}%s", amount,
-                    converterTemporal.toString(), i, MILLIS.toString());
+                    temporalUnit.toString(), i, MILLIS.toString());
             ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
             return converter_Menu;
         });
 
         converter_Menu.AddOption("Convert to Seconds", () ->
         {
+            Object[] arg = (Object[]) converter_Menu.getArg();
+            TemporalUnit converterTemporal = (TemporalUnit) arg[0];
+            int amount = (int) arg[1];
             long i = dateConverter.toSeconds(converterTemporal, amount);
             String s = String.format("{1}%d {0}%s are equivalent to: {1}%d {0}%s", amount,
                     converterTemporal.toString(), i, SECONDS.toString());
@@ -139,6 +141,9 @@ public class Menus implements EventListener {
 
         converter_Menu.AddOption("Convert to Minutes", () ->
         {
+            Object[] arg = (Object[]) converter_Menu.getArg();
+            TemporalUnit converterTemporal = (TemporalUnit) arg[0];
+            int amount = (int) arg[1];
             long i = dateConverter.toMinutes(converterTemporal, amount);
             String s = String.format("{1}%d {0}%s are equivalent to: {1}%d {0}%s", amount,
                     converterTemporal.toString(), i, MINUTES.toString());
@@ -148,6 +153,9 @@ public class Menus implements EventListener {
 
         converter_Menu.AddOption("Convert to Hours", () ->
         {
+            Object[] arg = (Object[]) converter_Menu.getArg();
+            TemporalUnit converterTemporal = (TemporalUnit) arg[0];
+            int amount = (int) arg[1];
             long i = dateConverter.toHours(converterTemporal, amount);
             String s = String.format("{1}%d {0}%s are equivalent to: {1}%d {0}%s", amount,
                     converterTemporal.toString(), i, HOURS.toString());

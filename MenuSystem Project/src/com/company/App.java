@@ -35,10 +35,10 @@ public class App implements Application, EventListener {
 
     State currentState = State.closed;
 
-    public void setActiveMenu(MenuInterface menu){
-        if(menu == null)
-            throw new NullPointerException();
+    @Override
+    public void setActiveMenu(MenuInterface menu, Object usable) {
         activeMenu = menu;
+        activeMenu.setArg(usable);
     }
 
     /**This creates a new Event executor that handles methods
@@ -96,15 +96,17 @@ public class App implements Application, EventListener {
     {
         This = this;
 
-        OnStateChangedEvent.RegisterListener(this);
-        OnApplicationClose.RegisterListener(this);
+        this.OnStateChangedEvent.RegisterListener(this);
+        this.OnApplicationClose.RegisterListener(this);
 
         Menus.CreateMenus(this);
 
         /*
         * Modo Inicial = Main Menu
         * */
-        setActiveMenu(MenuFactory.getExistingMenu("Main Menu"));
+        this.setActiveMenu(MenuFactory.getExistingMenu("Main Menu"), null);
+
+        SetState(State.running);
     }
 
     public void Update() {
@@ -121,7 +123,6 @@ public class App implements Application, EventListener {
 
     public void Run() {
         Start();
-        SetState(State.running);
         Update();
     }
 }

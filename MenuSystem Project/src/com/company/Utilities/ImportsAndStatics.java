@@ -1,6 +1,6 @@
 package com.company.Utilities;
 
-import java.time.*;
+/*import java.time.*;
 import java.util.*;
 import java.io.*;
 import java.nio.*;
@@ -84,12 +84,13 @@ import static java.time.temporal.TemporalQueries.localTime;
 import static java.time.temporal.TemporalQueries.offset;
 import static java.time.temporal.TemporalQueries.precision;
 import static java.time.temporal.TemporalQueries.zone;
-import static java.time.temporal.TemporalQueries.zoneId;
+import static java.time.temporal.TemporalQueries.zoneId;*/
 
-public class ImportsAndStatics.java{
-    
-    /*////////////////////////////
-    //Add necessary statics here//
-    ////////////////////////////*/
+public class ImportsAndStatics {
 
+    public static final String ASIA_TOKYO = "Asia/Tokyo";
+
+    public static final String AUSTRALIA_MELBOURNE = "Australia/Melbourne";
+
+    public static final String EUROPE_LISBON = "Europe/Lisbon";
 }

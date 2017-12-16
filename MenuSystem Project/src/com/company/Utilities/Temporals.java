@@ -1,11 +1,24 @@
 package com.company.Utilities;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.temporal.*;
 
 import static java.time.temporal.ChronoField.DAY_OF_WEEK;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 public class Temporals {
+
+    public static TemporalAdjuster timeAtTimeZone(ZoneId id){
+        return new TemporalAdjuster() {
+            @Override
+            public Temporal adjustInto(Temporal temporal) {
+                LocalDateTime from = LocalDateTime.from(temporal);
+                Temporal temporal1 = id.getRules().getOffset(from).adjustInto(from);
+                return temporal1;
+            }
+        };
+    }
 
     /*TODO: Add support for a more generic working days
         Like holidays and stuff
@@ -29,7 +42,7 @@ public class Temporals {
         return WeekendAdjuster.NEXT_WEEKEND;
     }
 
-    private static enum WeekendAdjuster implements TemporalAdjuster {
+    private enum WeekendAdjuster implements TemporalAdjuster {
         /**
          * Adjust into the next weekend
          * Start of Saturday
@@ -50,7 +63,7 @@ public class Temporals {
     /**
      * Enum implementing the adjusters.
      */
-    private static enum Adjuster implements TemporalAdjuster {
+    private enum Adjuster implements TemporalAdjuster {
         /** Next working day adjuster. */
         NEXT_WORKING {
             @Override

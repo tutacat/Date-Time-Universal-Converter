@@ -1,8 +1,8 @@
 package com.company.Utilities.Colorfull_Console;
 
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
-import static com.company.Main.EMPTY_STRING;
 import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor;
 import static com.company.Utilities.Colorfull_Console.ConsoleColors.RESET;
 import static java.lang.System.in;
@@ -56,17 +56,33 @@ public class ColorfulConsole {
     }
 
     private static Scanner scanner = new Scanner(in);
+    private static Scanner intScanner = new Scanner(in);
 
     public static int ReadNextInt() {
-        if(scanner.hasNextInt())
-            return scanner.nextInt();
-        return -1;
+        int result;
+        try {
+            result = intScanner.nextInt();
+        }
+        catch (InputMismatchException e){
+            /*
+            * Ok so consecutive next Int
+            * would not work! i needed to call the next
+            * to get the stream going
+            *
+            * i can still have some errors
+            * wtv
+            * */
+            intScanner.next();
+            return -1;
+        }
+        intScanner.nextLine();
+        return result;
     }
 
     public static String ReadNext() {
         if(scanner.hasNext())
             return scanner.next();
-        return EMPTY_STRING;
+        else return "";
     }
 
     private static void Reset(){

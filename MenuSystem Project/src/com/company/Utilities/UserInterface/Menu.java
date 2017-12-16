@@ -8,6 +8,7 @@ import com.company.Utilities.Colorfull_Console.ColorfulConsole;
 import com.company.Utilities.Events.Delegate;
 import com.company.Utilities.Events.EventExecutor;
 import com.company.Utilities.Events.EventListener;
+import com.company.Utilities.Tuple;
 
 import java.util.*;
 
@@ -25,12 +26,14 @@ public class Menu implements MenuInterface, EventListener {
     private Dictionary<Integer, String> Options;
     private List<Executor> functions;
 
+    private String menuHeader = EMPTY_STRING;
+    private String menuName = "DefaultMenu";
+
+    private Object usable = null;
+
     public int GetSize(){
         return Options.size();
     }
-
-    private String menuHeader = EMPTY_STRING;
-    private String menuName = "DefaultMenu";
 
     public EventExecutor onMenuChanged = new EventExecutor(0, new Delegate(void.class));
 
@@ -52,6 +55,16 @@ public class Menu implements MenuInterface, EventListener {
             if(GetSize() != 0)
                 rows = GetSize();
         }
+    }
+
+    @Override
+    public Object getArg() {
+        return usable;
+    }
+
+    @Override
+    public void setArg(Object o) {
+        usable = o;
     }
 
     public void SetApplication(Application application) {
@@ -104,14 +117,58 @@ public class Menu implements MenuInterface, EventListener {
         }
 
         //LogSystem.WriteLog("Current Menu -> " + this.menuName + " | User Input -> " + cmd);
-        MenuInterface run = (MenuInterface) functions.get(cmd - 1).Run();
-        if(run != this){
-            onMenuChanged.Invoke();
-        }
-        app.setActiveMenu(run);
+        Executor executor = functions.get(cmd - 1);
+        MenuInterface chooseMenu = null;
+        Tuple t = null;
+        try{
+            t = (Tuple) executor.Run();
+        }catch (ClassCastException e){
+            chooseMenu = (MenuInterface) functions.get(cmd - 1).Run();
     }
 
+        if(t != null){
+            chooseMenu = (MenuInterface) t.a;
+            app.setActiveMenu(chooseMenu, t.b);
+            return;
+        }
+
+        if(chooseMenu == null) {
+            out.println("No MENU could be selected");
+            return;
+        }
+
+        if(chooseMenu != this){
+            onMenuChanged.Invoke();
+        }
+        app.setActiveMenu(chooseMenu, null);
+    }
+
+
+    /**
+     * Adds a new Option to the Menu
+     * that option when run sends some data to the landing Menu
+     *
+     * @param op String that will represent this option in the screen
+     * @param o Tuple that contains the landing Menu and the Data that will go to that Menu
+     *          (Can be the same)
+     * */
+    @Override
+    public void AddOption(Executor<Tuple<MenuInterface, Object>> o, String op){
+        _AddOption(op, o);
+    }
+
+    /**
+     * Adds a new Option to the Menu
+     *
+     * @param op String that will represent this option in the screen
+     * @param o The landing Menu (Can be the same)
+     */
+    @Override
     public void AddOption(String op, Executor <MenuInterface> o) {
+        _AddOption(op, o);
+    }
+
+    public void _AddOption(String op, Executor o){
         functions.add(o);
         Options.put(GetSize(), op);
     }
