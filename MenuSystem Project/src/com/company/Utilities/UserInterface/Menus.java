@@ -9,6 +9,7 @@ import com.company.Operations.MenuInterface;
 import com.company.Utilities.ChronoMenusUtilities;
 import com.company.Utilities.Colorfull_Console.ColorfulConsole;
 import com.company.Utilities.Events.EventListener;
+import com.company.Utilities.Net.HolidaysManager;
 import com.company.Utilities.Tuple;
 
 import java.time.DayOfWeek;
@@ -17,6 +18,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Green;
@@ -39,6 +42,23 @@ public class Menus implements EventListener {
 
         MenuInterface converter_Menu = MenuFactory.getMenu(app, "Converter Menu");
 
+        MenuInterface worldLocations = MenuFactory.getMenu(app, "World Continents");
+        worldLocations.SetRows (3);
+        MenuInterface[] locations = {
+                MenuFactory.getMenu (app, "North America"),
+                MenuFactory.getMenu (app, "Atlantic"),
+                MenuFactory.getMenu (app, "South America"),
+                MenuFactory.getMenu (app, "Australia Pacific"),
+                MenuFactory.getMenu (app, "UNWorld"),
+                MenuFactory.getMenu (app, "Asia"),
+                MenuFactory.getMenu (app, "Indian Ocean"),
+                MenuFactory.getMenu (app, "Europe"),
+                MenuFactory.getMenu (app, "Africa")};
+        for (MenuInterface location : locations) {
+            location.SetRows (5);
+            location.AddExitOption (worldLocations);
+        }
+
         //================================= MAIN MENU =========================================================
         main_menu.SetHeader("This is the main menu");
         main_menu.AddOption("Time Operations", () -> main_menu);
@@ -53,6 +73,7 @@ public class Menus implements EventListener {
             return date_menu;
         });
         main_menu.AddOption("Time Zone Operations", () -> main_menu);
+        main_menu.AddOption ("Holidays", () -> worldLocations);
         main_menu.AddExitOption(exit_menu);
         //====================================================================================================
 
@@ -165,6 +186,26 @@ public class Menus implements EventListener {
 
         converter_Menu.AddExitOption(date_menu);
         //====================================================================================================
+
+        //=====================================HOLIDAYS=======================================================
+        HolidaysManager holidaysManager = new HolidaysManager();
+        holidaysManager.loadZones(false);
+        final int[] i = {0};
+        for (Tuple t : holidaysManager.Columns){
+            MenuInterface location = locations[i[0]];
+            worldLocations.AddOption((String) t.a, () -> location);
+            for (Object o : ((ArrayList) t.b)) {
+                location.AddOption ((String)o, () -> {
+                    List<Tuple <LocalDate, String>> holidays = holidaysManager.getHolidays ((String) o);
+                    holidays.forEach((r) -> ColorfulConsole.WriteLine(Green(Regular), r.a + " " + r.b));
+                    return main_menu;
+                });
+            }
+            i[0]++;
+        }
+        worldLocations.AddExitOption (main_menu);
+        //====================================================================================================
+
 
         //================================= EXIT MENU ========================================================
         exit_menu.AddOption("Press Enter", () -> {

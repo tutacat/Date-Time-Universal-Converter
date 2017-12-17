@@ -7,7 +7,6 @@ import com.company.Utilities.Events.Delegate;
 import com.company.Utilities.Events.Event;
 import com.company.Utilities.Events.EventExecutor;
 import com.company.Utilities.Events.EventListener;
-import com.company.Utilities.Net.HolidaysManager;
 import com.company.Utilities.UserInterface.MenuFactory;
 import com.company.Utilities.UserInterface.Menus;
 
@@ -96,10 +95,6 @@ public class App implements Application, EventListener {
     public void Start()
     {
         This = this;
-
-        HolidaysManager holidaysManager = new HolidaysManager();
-        holidaysManager.Connect(HolidaysManager.holidaysUrl);
-        holidaysManager.loadZones(false);
 
         this.OnStateChangedEvent.RegisterListener(this);
         this.OnApplicationClose.RegisterListener(this);
