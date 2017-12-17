@@ -31,6 +31,8 @@ public class Menu implements MenuInterface, EventListener {
 
     private Object usable = null;
 
+    private int spacementLength = 0;
+
     public int GetSize(){
         return Options.size();
     }
@@ -120,27 +122,30 @@ public class Menu implements MenuInterface, EventListener {
         Executor executor = functions.get(cmd - 1);
         MenuInterface chooseMenu = null;
         Tuple t = null;
+        Object run = executor.Run ();
         try{
-            t = (Tuple) executor.Run();
-        }catch (ClassCastException e){
-            chooseMenu = (MenuInterface) functions.get(cmd - 1).Run();
-    }
+            t = (Tuple) run;
+        }catch (Exception e){
+            chooseMenu = (MenuInterface) run;
+        }
 
         if(t != null){
             chooseMenu = (MenuInterface) t.a;
             app.setActiveMenu(chooseMenu, t.b);
+            if(chooseMenu != this){
+                onMenuChanged.Invoke();
+            }
             return;
         }
 
-        if(chooseMenu == null) {
-            out.println("No MENU could be selected");
+        if(chooseMenu != null) {
+            app.setActiveMenu(chooseMenu, null);
+            if(chooseMenu != this){
+                onMenuChanged.Invoke();
+            }
             return;
         }
-
-        if(chooseMenu != this){
-            onMenuChanged.Invoke();
-        }
-        app.setActiveMenu(chooseMenu, null);
+        out.println("No MENU could be selected");
     }
 
 
@@ -169,6 +174,11 @@ public class Menu implements MenuInterface, EventListener {
     }
 
     public void _AddOption(String op, Executor o){
+
+        int length = op.length ();
+        if(length > this.spacementLength)
+            this.spacementLength = length;
+
         functions.add(o);
         Options.put(GetSize(), op);
     }
@@ -178,7 +188,6 @@ public class Menu implements MenuInterface, EventListener {
         AddOption("Exit", () -> {
             /*TODO: Should i call Garbage Collector here?*/
             System.gc();
-
             return landingMenu;
         });
     }
@@ -201,7 +210,7 @@ public class Menu implements MenuInterface, EventListener {
             int res = Options.size() / rows;
             for (int j = 0; j <= res; j++) {
                 for (; i <= Options.size();) {
-                    f.append(String.format("{0}[%d] {1}%-20s\t", i, Options.get(i - 1)));
+                    f.append(String.format("{0}[%d] {1}%-"+this.spacementLength+"s\t", i, Options.get(i - 1)));
                     aux++;
                     if(aux == rows) {
                         i++;

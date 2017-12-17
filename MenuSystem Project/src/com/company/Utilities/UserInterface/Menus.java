@@ -9,6 +9,7 @@ import com.company.Operations.MenuInterface;
 import com.company.Utilities.ChronoMenusUtilities;
 import com.company.Utilities.Colorfull_Console.ColorfulConsole;
 import com.company.Utilities.Events.EventListener;
+import com.company.Utilities.Net.Holiday;
 import com.company.Utilities.Net.HolidaysManager;
 import com.company.Utilities.Tuple;
 
@@ -24,6 +25,7 @@ import java.util.Locale;
 
 import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Green;
 import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Modifier.Regular;
+import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Modifier.Underline;
 import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Red;
 import static java.time.temporal.ChronoUnit.*;
 
@@ -196,8 +198,11 @@ public class Menus implements EventListener {
             worldLocations.AddOption((String) t.a, () -> location);
             for (Object o : ((ArrayList) t.b)) {
                 location.AddOption ((String)o, () -> {
-                    List<Tuple <LocalDate, String>> holidays = holidaysManager.getHolidays ((String) o);
-                    holidays.forEach((r) -> ColorfulConsole.WriteLine(Green(Regular), r.a + " " + r.b));
+                    List<Holiday> holidays = holidaysManager.getHolidays ((String) o);
+                    String formatted = String.format ("{0}Found {1}%d {0}Holidays in {1}%s", holidays.size (), o);
+                    ColorfulConsole.WriteLineFormatted (formatted, Green (Regular), Red (Underline));
+                    holidays.forEach((r) -> ColorfulConsole.WriteLine(Green(Regular),
+                            r.getHolidayDate () + " " + r.getHolidayName ()));
                     return main_menu;
                 });
             }

@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Green;
+import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Modifier.Regular;
 import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Modifier.Underline;
 import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Red;
 import static java.time.LocalDate.now;
@@ -79,8 +80,13 @@ public class HolidaysManager  {
                     for (Element element1 : ulElement) {
                         Elements li = element1.getElementsByTag("li");
                         for (Element element3 : li) {
-                            String a = element3.getElementsByTag("a").text().toLowerCase();
-                            Columns.get(i).b.add(a);
+                            String urlPart = element3.getElementsByTag ("a").attr ("href");
+                            String[] parts = urlPart.split ("/");
+                            String country = parts[2];
+                            //String a = element3.getElementsByTag ("a").text ();
+                            //a = a.replaceAll (" ", "-");
+                            //a = a.toLowerCase (Locale.UK);
+                            Columns.get (i).b.add (country);
                         }
                         i++;
                     }
@@ -91,15 +97,21 @@ public class HolidaysManager  {
             ColorfulConsole.WriteLine(Red(Underline),"Error loading page: " + holidaysUrl);
             return;
         }
-        ColorfulConsole.WriteLine(Green(Underline), "Loaded: " + Columns.size() +
-                " Countries from timeanddate.com/holidays");
+        ColorfulConsole.WriteLine(Green(Underline), "Loaded: 230+ Countries from timeanddate.com/holidays");
     }
 
-    public List<Tuple<LocalDate, String>> getHolidays(String country){
+    public List<Holiday> getHolidays(String country){
         return getHolidays(country, -1);
     }
 
-    public List<Tuple<LocalDate, String>> getHolidays(String country, int year){
+
+    /**
+     * @param country Country from a available list of countries
+     * @param year the year to get all the holidays
+     * @return A list with a Local Date ex: 2017-08-12 and the name of the holiday
+     *                 eg: 2017-12-25 Christmas Day
+     */
+    public List<Holiday> getHolidays(String country, int year){
         String url;
         if(year == -1){
             //Using current timeZone year
@@ -107,6 +119,8 @@ public class HolidaysManager  {
             year = now().getYear();
         }
         else url = holidaysUrl + country + "/" + year;
+        ColorfulConsole.WriteLineFormatted ("{0}Connecting to: {1}"+url,
+                Green (Regular), Green (Underline));
         doc = Connect(url);
         if(doc == null)
         {
@@ -114,7 +128,7 @@ public class HolidaysManager  {
             return null;
         }
 
-        List<Tuple<LocalDate, String>> holidays = new ArrayList <>();
+        List<Holiday> holidays = new ArrayList <>();
         LocalDate date = null;
         String holidayName = null;
 
@@ -141,14 +155,15 @@ public class HolidaysManager  {
                 for (Element elementTd : td){
                     Elements e = elementTd.getElementsByTag("a");
                     if(e.size() > 0){
+                        //   .../holidays/country/
                         holidayName = e.first().text();
                         //I can break here! html does only have 1 'a' element
                         break;
                     }
                 }
 
-                Tuple t = new Tuple(date, holidayName);
-                holidays.add(t);
+                Holiday holiday = new Holiday (date, holidayName);
+                holidays.add(holiday);
             }
         }
         return holidays;
