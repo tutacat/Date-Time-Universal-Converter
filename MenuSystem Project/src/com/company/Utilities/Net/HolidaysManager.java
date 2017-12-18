@@ -43,6 +43,8 @@ public class HolidaysManager  {
         Columns = new ArrayList<>();
     }
 
+    private boolean isLoaded = false;
+
     Document doc;
 
     private Document Connect(String string) {
@@ -62,6 +64,11 @@ public class HolidaysManager  {
      * Saving to file allows offline holidays checking -> maybe wont work :p
      * */
     public void loadZones(boolean saveToFile) {
+        if(isLoaded) {
+            ColorfulConsole.WriteLine(Green(Underline), "Countries Already Loaded");
+            return;
+        }
+
         doc = Connect(holidaysUrl);
         Elements headLines;
         int i = 0;
@@ -97,6 +104,7 @@ public class HolidaysManager  {
             ColorfulConsole.WriteLine(Red(Underline),"Error loading page: " + holidaysUrl);
             return;
         }
+        isLoaded = true;
         ColorfulConsole.WriteLine(Green(Underline), "Loaded: 230+ Countries from timeanddate.com/holidays");
     }
 

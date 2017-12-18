@@ -7,6 +7,7 @@ import com.company.Utilities.Events.Delegate;
 import com.company.Utilities.Events.Event;
 import com.company.Utilities.Events.EventExecutor;
 import com.company.Utilities.Events.EventListener;
+import com.company.Utilities.Net.HolidaysManager;
 import com.company.Utilities.UserInterface.MenuFactory;
 import com.company.Utilities.UserInterface.Menus;
 
@@ -19,6 +20,8 @@ public class App implements Application, EventListener {
 
     static final String Decorator = "________________________________________________________________";
     public static final String OtherDecorator = "███████████████████████████████████";
+
+    public static HolidaysManager holidaysManager;
 
     private String AppName;
 
@@ -95,6 +98,8 @@ public class App implements Application, EventListener {
     public void Start()
     {
         This = this;
+
+        holidaysManager = new HolidaysManager();
 
         this.OnStateChangedEvent.RegisterListener(this);
         this.OnApplicationClose.RegisterListener(this);

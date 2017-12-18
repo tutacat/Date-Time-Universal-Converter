@@ -5,6 +5,7 @@ import com.company.Utilities.Temporals;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.temporal.*;
 
 import static java.time.LocalDate.from;
@@ -21,6 +22,10 @@ public class Date implements DateInterface {
         LocalDate date = start.minusDays(1);
         while (date.isBefore(end)){
             date = date.with(adjuster);
+            if(date.isAfter (end)) {
+                resultDays -= Period.between (end, date).getDays ();
+                break;
+            }
             if(date.isBefore(end))
                 resultDays++;
         }
@@ -80,39 +85,48 @@ public class Date implements DateInterface {
         return daysLeftUntilXthDayQuery;
     }
 
-    private final TemporalQuery<Integer> workDaysUntilDateQuery = (temporal) -> {
-        LocalDate start = now();
-        LocalDate end = tryGetValidDate(temporal);
-        if(end == null)
-            return Integer.MIN_VALUE;
-        return CheckAllDays(start, end, Temporals.nextWorkingDay());
-    };
 
-    @Override
-    public TemporalQuery<Integer> workDaysUntilDate() {
-        return workDaysUntilDateQuery;
-    }
+    private TemporalQuery<Integer> workDaysUntil(boolean includeHolidays, String country){
 
-    private final TemporalQuery<Integer> weekendDaysUntilDateQuery = (temporal) -> {
-        LocalDate start = now();
-        LocalDate end = tryGetValidDate(temporal);
-        if(end == null)
-            return Integer.MIN_VALUE;
-        return CheckAllDays(start, end, Temporals.nextWeekendDay());
-    };
-
-    @Override
-    public TemporalQuery<Integer> weekendDaysUntilDate() {
-        return weekendDaysUntilDateQuery;
+        return (temporal) -> {
+            LocalDate start = now();
+            LocalDate end = tryGetValidDate(temporal);
+            if(end == null)
+                return Integer.MIN_VALUE;
+            if(includeHolidays)
+                return CheckAllDays(start, end, Temporals.nextWorkingDayWithHolidays (true, country));
+            return CheckAllDays(start, end, Temporals.nextWorkingDay());
+        };
     }
 
     @Override
-    public LocalDate checkHoliday() {
-        return null;
+    public TemporalQuery<Integer> workDaysUntilDate(boolean includeHolidays, String country) {
+        return workDaysUntil(includeHolidays, country);
+    }
+
+
+    private TemporalQuery<Integer> holidaysUntil(boolean includeHolidays, String country) {
+        return (temporal) -> {
+            LocalDate start = now ();
+            LocalDate end = tryGetValidDate (temporal);
+            if (end == null)
+                return Integer.MIN_VALUE;
+            return CheckAllDays (start, end, Temporals.nextHoliday (includeHolidays, country));
+        };
     }
 
     @Override
-    public TemporalQuery <TemporalAccessor> addDateToCurrentDate(TemporalAccessor dateToAdd)
+    public TemporalQuery<Integer> holidaysUntilDate(boolean includeWeekends, String Country) {
+        return holidaysUntil (includeWeekends, Country);
+    }
+
+    @Override
+    public TemporalAdjuster checkHoliday(String country) {
+        return Temporals.nextWorkingDayWithHolidays (true, country);
+    }
+
+    @Override
+    public TemporalQuery <TemporalAccessor> addDateToCurrentDate(Temporal dateToAdd)
     {
         return temporal -> {
             LocalDate date = from(temporal);
@@ -121,9 +135,9 @@ public class Date implements DateInterface {
     }
 
     @Override
-    public TemporalQuery <TemporalAccessor> subtractDateFromCurrentDate(TemporalAccessor dateToSubtract) {
+    public TemporalQuery <TemporalAccessor> subtractDateFromCurrentDate(Temporal dateToSubtract) {
         return temporal -> {
-            LocalDate date  = from(dateToSubtract);
+            LocalDate date  = from(temporal);
             return LocalDate.from(Temporals.subtractTemporalToTemporal(date, dateToSubtract));
         };
     }

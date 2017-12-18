@@ -3,7 +3,9 @@ package com.company.Operations;
 import java.time.DateTimeException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
+import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalQuery;
 
 import static java.time.Month.JANUARY;
@@ -28,11 +30,11 @@ public interface DateInterface{
     TemporalQuery<Integer> xthDayOfXthYear();
     TemporalQuery<DayOfWeek> xthDayOfXthWeek();
     TemporalQuery<Integer> daysLeftUntilXthDay(); //de hoje até ao dia x. pode ser interpretado como "dias até ao prazo"
-    TemporalQuery<Integer> workDaysUntilDate();
-	TemporalQuery<Integer> weekendDaysUntilDate();
-	LocalDate checkHoliday(); // arrayList com feriados nacionais?
-    TemporalQuery<TemporalAccessor> addDateToCurrentDate(TemporalAccessor dateToAdd);
-    TemporalQuery<TemporalAccessor> subtractDateFromCurrentDate(TemporalAccessor dateToAdd);
+    TemporalQuery<Integer> workDaysUntilDate(boolean includeHolidays, String Country);
+	TemporalQuery<Integer> holidaysUntilDate(boolean includeWeekends, String Country);
+	TemporalAdjuster checkHoliday(String Country); // arrayList com feriados nacionais?
+    TemporalQuery<TemporalAccessor> addDateToCurrentDate(Temporal dateToAdd);
+    TemporalQuery<TemporalAccessor> subtractDateFromCurrentDate(Temporal dateToAdd);
 	LocalDate differenceBetweenDates();
 	//TBA? podemos fazer o ano que tem menos dias úteis, por exemplo
 }

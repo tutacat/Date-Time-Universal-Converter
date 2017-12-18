@@ -57,8 +57,7 @@ public class ConsoleColors {
 
 
             private String SetTextColor(ColorCode colorNumber, String modifier){
-                String c = modifier;
-                return c.replace("_", String.valueOf(colorNumber.Code));
+                return modifier.replace("_", String.valueOf(colorNumber.Code));
             }
         }
 

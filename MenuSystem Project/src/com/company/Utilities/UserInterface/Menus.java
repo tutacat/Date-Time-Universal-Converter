@@ -1,5 +1,6 @@
 package com.company.Utilities.UserInterface;
 
+import com.company.App;
 import com.company.Date;
 import com.company.DateConverter;
 import com.company.Operations.Application;
@@ -10,7 +11,6 @@ import com.company.Utilities.ChronoMenusUtilities;
 import com.company.Utilities.Colorfull_Console.ColorfulConsole;
 import com.company.Utilities.Events.EventListener;
 import com.company.Utilities.Net.Holiday;
-import com.company.Utilities.Net.HolidaysManager;
 import com.company.Utilities.Tuple;
 
 import java.time.DayOfWeek;
@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAccessor;
 import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,22 +59,16 @@ public class Menus implements EventListener {
                 MenuFactory.getMenu (app, "Africa")};
         for (MenuInterface location : locations) {
             location.SetRows (5);
-            location.AddExitOption (worldLocations);
         }
+
+        MenuInterface locationOptions = MenuFactory.getMenu (app, "Location Options");
+
+        dates = new Date ();
 
         //================================= MAIN MENU =========================================================
         main_menu.SetHeader("This is the main menu");
         main_menu.AddOption("Time Operations", () -> main_menu);
-        main_menu.AddOption("Date Operations", () -> {
-            /**
-             * Ok
-             * Cada uma das interfaces vai ter de ser inicializada em algum dado ponto da aplicacao para
-             * que possam ser utilizadas.
-             * entao quando escolho um modo no menu principal a transicao trata de inicializar
-             * */
-            dates = new Date();
-            return date_menu;
-        });
+        main_menu.AddOption("Date Operations", () -> date_menu);
         main_menu.AddOption("Time Zone Operations", () -> main_menu);
         main_menu.AddOption ("Holidays", () -> worldLocations);
         main_menu.AddExitOption(exit_menu);
@@ -93,6 +88,18 @@ public class Menus implements EventListener {
             return date_menu;
         });
 
+        date_menu.AddOption(() -> {
+            LocalDate customDate = ChronoMenusUtilities.CreateLocalDate();
+            int res = customDate.query(dates.daysLeftUntilXthDay());
+            String s = String.format("{0}There are {1}%d {0}days until {1}%s", res, customDate
+                    .format(DateTimeFormatter.ISO_DATE));
+            ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
+            /**
+             * This is a example when we want to send some info to the result menu
+             * */
+            return new Tuple<>(converter_Menu, new Object[]{  ChronoUnit.DAYS, res } );
+        }, "Days Until");
+
         date_menu.AddOption("Day of the Year", () -> {
             LocalDate customDate = ChronoMenusUtilities.CreateLocalDate();
             Integer query = customDate.query(dates.xthDayOfXthYear());
@@ -102,37 +109,38 @@ public class Menus implements EventListener {
             return date_menu;
         });
 
-        date_menu.AddOption(() -> {
-            LocalDate customDate = ChronoMenusUtilities.CreateLocalDate();
-            int res = customDate.query(dates.daysLeftUntilXthDay());
-            String s = String.format("{0}There are {1}%d {0}days until {1}%s", res, customDate
-                    .format(DateTimeFormatter.ISO_DATE));
-            ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
+        date_menu.AddOption ("Subtract a Date to a Date", () -> {
+            ColorfulConsole.WriteLineFormatted("{0}Create a Date", Green(Regular));
+            LocalDate customDate = ChronoMenusUtilities.CreateLocalDate ();
+            ColorfulConsole.WriteLineFormatted("{0}Create a Date to subtract to the First date", Green(Regular));
+            LocalDate customDate1 = ChronoMenusUtilities.CreateLocalDate ();
 
-            /**
-             * This is a example when we want to send some info to the result menu
-             * */
-            return new Tuple<>(converter_Menu, new Object[]{  ChronoUnit.DAYS, res } );
-        }, "Working Days Until");
-
-        date_menu.AddOption(() -> {
-            LocalDate customDate = ChronoMenusUtilities.CreateLocalDate();
-            int res = customDate.query(dates.workDaysUntilDate());
-            String s = String.format("{0}Working from {1}Monday {0}to {1}Friday\n" +
-                    "{0}There are {1}%d {0}Working Days until {1}%s",
-                    res, customDate.format(DateTimeFormatter.ofPattern("d MMM uuuu")));
+            TemporalAccessor query = customDate.query (dates.subtractDateFromCurrentDate (customDate1));
+            LocalDate date = LocalDate.from (query);
+            String s = String.format("{0}The result of Subtracting {1}%s {0}to {1}%s {0}is: {1}%s",
+                    customDate.format(DateTimeFormatter.ISO_DATE),
+                    customDate1.format(DateTimeFormatter.ISO_DATE),
+                    date.format (DateTimeFormatter.ISO_DATE));
             ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
-            return new Tuple<>(converter_Menu, new Object[]{  ChronoUnit.DAYS, res } );
-        }, "Working Days Until");
+            return date_menu;
+        });
 
-        date_menu.AddOption(() -> {
-            LocalDate customDate = ChronoMenusUtilities.CreateLocalDate();
-            int res = customDate.query(dates.weekendDaysUntilDate());
-            String s = String.format("{0}There are {1}%d {0}Weekend Days until {1}%s",
-                    res, customDate.format(DateTimeFormatter.ofPattern("d MMM uuuu")));
+
+        date_menu.AddOption ("Sum a Date to a Date", () -> {
+            ColorfulConsole.WriteLineFormatted("{0}Create a Date", Green(Regular));
+            LocalDate customDate = ChronoMenusUtilities.CreateLocalDate ();
+            ColorfulConsole.WriteLineFormatted("{0}Create a Date to add to the First date", Green(Regular));
+            LocalDate customDate1 = ChronoMenusUtilities.CreateLocalDate ();
+
+            TemporalAccessor query = customDate.query (dates.addDateToCurrentDate (customDate1));
+            LocalDate date = LocalDate.from (query);
+            String s = String.format("{0}The result of adding {1}%s {0}to {1}%s {0}is: {1}%s",
+                    customDate.format(DateTimeFormatter.ISO_DATE),
+                    customDate1.format(DateTimeFormatter.ISO_DATE),
+                    date.format (DateTimeFormatter.ISO_DATE));
             ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
-            return new Tuple<>(converter_Menu, new Object[]{  ChronoUnit.DAYS, res } );
-        }, "Holiday Days Until");
+            return date_menu;
+        });
 
         date_menu.AddExitOption(main_menu);
         //====================================================================================================
@@ -186,31 +194,62 @@ public class Menus implements EventListener {
             return converter_Menu;
         });
 
-        converter_Menu.AddExitOption(date_menu);
+        converter_Menu.AddExitOption(main_menu);
         //====================================================================================================
 
         //=====================================HOLIDAYS=======================================================
-        HolidaysManager holidaysManager = new HolidaysManager();
-        holidaysManager.loadZones(false);
+        App.holidaysManager.loadZones(false);
         final int[] i = {0};
-        for (Tuple t : holidaysManager.Columns){
+        for (Tuple t : App.holidaysManager.Columns){
             MenuInterface location = locations[i[0]];
             worldLocations.AddOption((String) t.a, () -> location);
             for (Object o : ((ArrayList) t.b)) {
-                location.AddOption ((String)o, () -> {
-                    List<Holiday> holidays = holidaysManager.getHolidays ((String) o);
-                    String formatted = String.format ("{0}Found {1}%d {0}Holidays in {1}%s", holidays.size (), o);
-                    ColorfulConsole.WriteLineFormatted (formatted, Green (Regular), Red (Underline));
-                    holidays.forEach((r) -> ColorfulConsole.WriteLine(Green(Regular),
-                            r.getHolidayDate () + " " + r.getHolidayName ()));
-                    return main_menu;
-                });
+                String oS = (String) o;
+                location.AddOption (() -> new Tuple<>(locationOptions, new Object[]{ oS } ), oS);
             }
+            location.AddExitOption (worldLocations);
             i[0]++;
         }
+
         worldLocations.AddExitOption (main_menu);
         //====================================================================================================
 
+        //================================= LOCATION OPTIONS =================================================
+        locationOptions.AddOption ("Show All holidays", () -> {
+            String s = (String) ((Object[]) locationOptions.getArg ())[0];
+            List<Holiday> holidays = App.holidaysManager.getHolidays (s);
+            String formatted = String.format ("{0}Found {1}%d{0} Holidays in {1}%s", holidays.size (), s);
+            ColorfulConsole.WriteLineFormatted (formatted, Green (Regular), Red (Underline));
+            holidays.forEach((r) -> ColorfulConsole.WriteLine(Green(Regular),
+                    r.getHolidayDate () + " " + r.getHolidayName ()));
+            return main_menu;
+        });
+
+        locationOptions.AddOption(() -> {
+            String country = (String) ((Object[]) locationOptions.getArg ())[0];
+            LocalDate customDate = ChronoMenusUtilities.CreateLocalDate();
+            boolean choice = choice("Include Holidays");
+            int res = customDate.query(dates.workDaysUntilDate(choice, country));
+            String s = String.format("{1}%s: {0}Working from {1}Monday {0}to {1}Friday\n" +
+                            "{0}There are {1}%d {0}Working Days until {1}%s",
+                    country ,res, customDate.format(DateTimeFormatter.ofPattern("d MMM uuuu")));
+            ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
+            return new Tuple<>(converter_Menu, new Object[]{  ChronoUnit.DAYS, res } );
+        }, "Working Days Until");
+
+        locationOptions.AddOption(() -> {
+            LocalDate customDate = ChronoMenusUtilities.CreateLocalDate();
+            String country = (String) ((Object[]) locationOptions.getArg ())[0];
+            boolean choice = choice("Include WeekEnds");
+            int res = customDate.query(dates.holidaysUntilDate (choice, country));
+            String s = String.format("{1}%s: {0}There are {1}%d {0}Weekend/Holiday Days until {1}%s",
+                    country, res, customDate.format(DateTimeFormatter.ofPattern("d MMM uuuu")));
+            ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
+            return new Tuple<>(converter_Menu, new Object[]{  ChronoUnit.DAYS, res } );
+        }, "Holiday Days Until");
+
+        locationOptions.AddExitOption (main_menu);
+        //====================================================================================================
 
         //================================= EXIT MENU ========================================================
         exit_menu.AddOption("Press Enter", () -> {
@@ -218,5 +257,16 @@ public class Menus implements EventListener {
             return exit_menu;
         });
         //====================================================================================================
+    }
+
+    private static boolean choice(String additionalInfo){
+        ColorfulConsole.WriteLine (Green (Underline), "Choose your Option 1 = YES other number = NO");
+        ColorfulConsole.WriteLine (Green (Underline), additionalInfo);
+        int i1 = ColorfulConsole.ReadNextInt ();
+        boolean choice;
+        if(i1 == 1){
+            choice = true;
+        }else choice = false;
+        return choice;
     }
 }
