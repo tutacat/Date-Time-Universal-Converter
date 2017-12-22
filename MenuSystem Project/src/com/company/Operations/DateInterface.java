@@ -30,8 +30,8 @@ public interface DateInterface{
     TemporalQuery<Integer> xthDayOfXthYear();
     TemporalQuery<DayOfWeek> xthDayOfXthWeek();
     TemporalQuery<Integer> daysLeftUntilXthDay(); //de hoje até ao dia x. pode ser interpretado como "dias até ao prazo"
-    TemporalQuery<Integer> workDaysUntilDate(boolean includeHolidays, String Country);
-	TemporalQuery<Integer> holidaysUntilDate(boolean includeWeekends, String Country);
+    TemporalQuery<Integer> workDaysUntilDate(Temporal temporal, boolean includeHolidays, String Country);
+	TemporalQuery<Integer> holidaysUntilDate(Temporal temporal, boolean includeWeekends, String Country);
 	TemporalAdjuster checkHoliday(String Country); // arrayList com feriados nacionais?
     TemporalQuery<TemporalAccessor> addDateToCurrentDate(Temporal dateToAdd);
     TemporalQuery<TemporalAccessor> subtractDateFromCurrentDate(Temporal dateToAdd);

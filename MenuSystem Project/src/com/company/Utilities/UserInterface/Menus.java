@@ -63,14 +63,20 @@ public class Menus implements EventListener {
 
         MenuInterface locationOptions = MenuFactory.getMenu (app, "Location Options");
 
-        dates = new Date ();
-
         //================================= MAIN MENU =========================================================
         main_menu.SetHeader("This is the main menu");
         main_menu.AddOption("Time Operations", () -> main_menu);
-        main_menu.AddOption("Date Operations", () -> date_menu);
+        main_menu.AddOption("Date Operations", () -> {
+            if(dates == null)
+                dates = new Date ();
+            return date_menu;
+        });
         main_menu.AddOption("Time Zone Operations", () -> main_menu);
-        main_menu.AddOption ("Holidays", () -> worldLocations);
+        main_menu.AddOption ("Holidays", () -> {
+            if(dates == null)
+                dates = new Date ();
+            return worldLocations;
+        });
         main_menu.AddExitOption(exit_menu);
         //====================================================================================================
 
@@ -227,9 +233,12 @@ public class Menus implements EventListener {
 
         locationOptions.AddOption(() -> {
             String country = (String) ((Object[]) locationOptions.getArg ())[0];
+            ColorfulConsole.WriteLine (Green (Underline) ,"Create a Finishing Date");
             LocalDate customDate = ChronoMenusUtilities.CreateLocalDate();
-            boolean choice = choice("Include Holidays");
-            int res = customDate.query(dates.workDaysUntilDate(choice, country));
+            ColorfulConsole.WriteLine (Green (Underline) ,"Create a Starting Date");
+            LocalDate startDate = ChronoMenusUtilities.CreateLocalDate ();
+            boolean choice = choice("?Include Holidays?");
+            int res = customDate.query(dates.workDaysUntilDate(startDate, choice, country));
             String s = String.format("{1}%s: {0}Working from {1}Monday {0}to {1}Friday\n" +
                             "{0}There are {1}%d {0}Working Days until {1}%s",
                     country ,res, customDate.format(DateTimeFormatter.ofPattern("d MMM uuuu")));
@@ -238,10 +247,13 @@ public class Menus implements EventListener {
         }, "Working Days Until");
 
         locationOptions.AddOption(() -> {
+            ColorfulConsole.WriteLine (Green (Underline) ,"Create a Finishing Date");
             LocalDate customDate = ChronoMenusUtilities.CreateLocalDate();
+            ColorfulConsole.WriteLine (Green (Underline) ,"Create a Starting Date");
+            LocalDate startDate = ChronoMenusUtilities.CreateLocalDate ();
             String country = (String) ((Object[]) locationOptions.getArg ())[0];
             boolean choice = choice("Include WeekEnds");
-            int res = customDate.query(dates.holidaysUntilDate (choice, country));
+            int res = customDate.query(dates.holidaysUntilDate (startDate, choice, country));
             String s = String.format("{1}%s: {0}There are {1}%d {0}Weekend/Holiday Days until {1}%s",
                     country, res, customDate.format(DateTimeFormatter.ofPattern("d MMM uuuu")));
             ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));

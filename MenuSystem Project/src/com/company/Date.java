@@ -86,10 +86,10 @@ public class Date implements DateInterface {
     }
 
 
-    private TemporalQuery<Integer> workDaysUntil(boolean includeHolidays, String country){
 
+    private TemporalQuery<Integer> workDaysUntil(Temporal startingDate, boolean includeHolidays, String country){
         return (temporal) -> {
-            LocalDate start = now();
+            LocalDate start = tryGetValidDate (startingDate);
             LocalDate end = tryGetValidDate(temporal);
             if(end == null)
                 return Integer.MIN_VALUE;
@@ -100,14 +100,15 @@ public class Date implements DateInterface {
     }
 
     @Override
-    public TemporalQuery<Integer> workDaysUntilDate(boolean includeHolidays, String country) {
-        return workDaysUntil(includeHolidays, country);
+    public TemporalQuery<Integer> workDaysUntilDate(Temporal startingDate, boolean includeHolidays, String country) {
+        if(startingDate == null || startingDate.equals (now ()))
+            startingDate = now ();
+        return workDaysUntil(startingDate, includeHolidays, country);
     }
 
-
-    private TemporalQuery<Integer> holidaysUntil(boolean includeHolidays, String country) {
+    private TemporalQuery<Integer> holidaysUntil(Temporal startingDate, boolean includeHolidays, String country) {
         return (temporal) -> {
-            LocalDate start = now ();
+            LocalDate start = tryGetValidDate (startingDate);
             LocalDate end = tryGetValidDate (temporal);
             if (end == null)
                 return Integer.MIN_VALUE;
@@ -116,8 +117,10 @@ public class Date implements DateInterface {
     }
 
     @Override
-    public TemporalQuery<Integer> holidaysUntilDate(boolean includeWeekends, String Country) {
-        return holidaysUntil (includeWeekends, Country);
+    public TemporalQuery<Integer> holidaysUntilDate(Temporal startingDate, boolean includeWeekends, String Country) {
+        if(startingDate == null || startingDate.equals (now ()))
+            startingDate = now ();
+        return holidaysUntil (startingDate, includeWeekends, Country);
     }
 
     @Override
