@@ -107,7 +107,7 @@ public class EventExecutor {
         Invoke(ALL, args);
     }
 
-    public void Invoke(int priority, Object... args) {
+    private void Invoke(int priority, Object... args) {
 
         synchronized (this) {
             for (Map.Entry <Class, Collection <EventHandler>> entry : bindings.entrySet()) {

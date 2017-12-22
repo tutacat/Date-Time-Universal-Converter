@@ -1,28 +1,40 @@
 package com.company.Utilities.Net;
 
 import com.company.Utilities.Colorfull_Console.ColorfulConsole;
+import com.company.Utilities.Events.Delegate;
+import com.company.Utilities.Events.Event;
+import com.company.Utilities.Events.EventExecutor;
+import com.company.Utilities.Events.EventListener;
 import com.company.Utilities.Tuple;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
+import java.util.EmptyStackException;
 import java.util.List;
 import java.util.Locale;
 
-import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Green;
+import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.*;
+import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Modifier.Bold;
 import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Modifier.Regular;
 import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Modifier.Underline;
-import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Red;
 import static java.time.LocalDate.now;
 
-public class HolidaysManager  {
+public class HolidaysManager implements EventListener {
     /**
      * So this website works like this
      *
@@ -39,8 +51,29 @@ public class HolidaysManager  {
      * */
     public List<Tuple<String, List<String>>> Columns;
 
+    EventExecutor onSaveToFileProgressUpdated = new EventExecutor (0, new Delegate (void.class, float.class));
+
+    @Event (eventExecutorCode = 0)
+    public void setExecutor(float progress){
+        ColorfulConsole.Write (Blue (Bold), "<[");
+        for (int i = 0; i < 100; i += 10) {
+            if(i < progress) {
+                ColorfulConsole.Write (Green (Bold), "=");
+            }else ColorfulConsole.Write (White (Regular), " ");
+        }
+        ColorfulConsole.Write (Blue (Bold), "]> " + progress + "%");
+    }
+
+    /**
+     * Google GSON Used to parse all the holidays to Disk
+     * */
+    private Gson gson;
+
     public HolidaysManager(){
+        gson = new GsonBuilder ().create ();
         Columns = new ArrayList<>();
+
+        onSaveToFileProgressUpdated.RegisterListener (this);
     }
 
     private boolean isLoaded = false;
@@ -106,6 +139,13 @@ public class HolidaysManager  {
         }
         isLoaded = true;
         ColorfulConsole.WriteLine(Green(Underline), "Loaded: 230+ Countries from timeanddate.com/holidays");
+        if(saveToFile)
+            try {
+                this.SaveToFile ();
+            }
+            catch (IOException e) {
+                e.printStackTrace ();
+            }
     }
 
     public List<Holiday> getHolidays(String country){
@@ -127,8 +167,8 @@ public class HolidaysManager  {
             year = now().getYear();
         }
         else url = holidaysUrl + country + "/" + year;
-        ColorfulConsole.WriteLineFormatted ("{0}Connecting to: {1}"+url,
-                Green (Regular), Green (Underline));
+        //ColorfulConsole.WriteLineFormatted ("{0}Connecting to: {1}"+url,
+        //        Green (Regular), Green (Underline));
         doc = Connect(url);
         if(doc == null)
         {
@@ -175,5 +215,58 @@ public class HolidaysManager  {
             }
         }
         return holidays;
+    }
+
+    public ArrayList LoadFromFile(String country){
+        Path path = Paths.get (".\\src\\Resources\\" + country + ".json");
+        ArrayList arrayList = this.gson.fromJson (path.toString (), ArrayList.class);
+
+        if(arrayList == null)
+            throw new NullPointerException ();
+
+        if(arrayList.size () == 0)
+            throw new EmptyStackException ();
+
+        return arrayList;
+    }
+
+    public boolean checkSaves(){
+        Path path = Paths.get (".\\src\\Resources\\");
+        String[] length = new File (path.toUri ()).list ();
+        int i = 0;
+        if(length != null) {
+            i = length.length;
+        }
+        return i >= 200;
+    }
+
+    float pr = 0;
+
+    public void SaveToFile() throws IOException {
+        if(!isLoaded)
+            return;
+
+        if(checkSaves ())
+        {
+            ColorfulConsole.WriteLine (Green (Underline), "Countries already saved to Disk");
+            return;
+        }
+
+        for (Tuple <String, List <String>> stringListTuple : this.Columns) {
+            List <String> stringList = stringListTuple.b;
+            onSaveToFileProgressUpdated.Invoke (pr);
+            ColorfulConsole.WriteLine (Green (Regular),"Downloading " + stringListTuple.a + " Zone...");
+            for (String s : stringList) {
+                List <Holiday> holidays = getHolidays (s);
+                //Para cada pais criar uma file
+                Path path = Paths.get (".\\src\\Resources\\" + s + ".json");
+                Writer writer = new FileWriter (path.toString ());
+                gson.toJson (holidays, writer);
+                writer.close();
+            }
+            pr += 100 / this.Columns.size ();
+            if(pr >= 99.0f)
+                ColorfulConsole.WriteLine (Green (Regular),"Done!");
+        }
     }
 }

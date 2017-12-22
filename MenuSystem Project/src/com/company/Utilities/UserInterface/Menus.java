@@ -198,7 +198,7 @@ public class Menus implements EventListener {
         //====================================================================================================
 
         //=====================================HOLIDAYS=======================================================
-        App.holidaysManager.loadZones(false);
+        App.holidaysManager.loadZones(true);
         final int[] i = {0};
         for (Tuple t : App.holidaysManager.Columns){
             MenuInterface location = locations[i[0]];
