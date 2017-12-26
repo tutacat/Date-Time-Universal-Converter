@@ -1,37 +1,30 @@
 package com.company.Utilities.Net;
 
+import com.company.App;
 import com.company.Utilities.Colorfull_Console.ColorfulConsole;
-import com.company.Utilities.Events.Delegate;
-import com.company.Utilities.Events.Event;
-import com.company.Utilities.Events.EventExecutor;
 import com.company.Utilities.Events.EventListener;
 import com.company.Utilities.Tuple;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
+import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
-import java.util.ArrayList;
-import java.util.EmptyStackException;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
+import java.util.stream.Stream;
 
 import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.*;
-import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Modifier.Bold;
-import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Modifier.Regular;
-import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Modifier.Underline;
+import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Modifier.*;
 import static java.time.LocalDate.now;
 
 public class HolidaysManager implements EventListener {
@@ -51,18 +44,6 @@ public class HolidaysManager implements EventListener {
      * */
     public List<Tuple<String, List<String>>> Columns;
 
-    EventExecutor onSaveToFileProgressUpdated = new EventExecutor (0, new Delegate (void.class, float.class));
-
-    @Event (eventExecutorCode = 0)
-    public void setExecutor(float progress){
-        ColorfulConsole.Write (Blue (Bold), "<[");
-        for (int i = 0; i < 100; i += 10) {
-            if(i < progress) {
-                ColorfulConsole.Write (Green (Bold), "=");
-            }else ColorfulConsole.Write (White (Regular), " ");
-        }
-        ColorfulConsole.Write (Blue (Bold), "]> " + progress + "%");
-    }
 
     /**
      * Google GSON Used to parse all the holidays to Disk
@@ -72,8 +53,6 @@ public class HolidaysManager implements EventListener {
     public HolidaysManager(){
         gson = new GsonBuilder ().create ();
         Columns = new ArrayList<>();
-
-        onSaveToFileProgressUpdated.RegisterListener (this);
     }
 
     private boolean isLoaded = false;
@@ -96,7 +75,7 @@ public class HolidaysManager implements EventListener {
     /**
      * Saving to file allows offline holidays checking -> maybe wont work :p
      * */
-    public void loadZones(boolean saveToFile) {
+    public void loadZones() {
         if(isLoaded) {
             ColorfulConsole.WriteLine(Green(Underline), "Countries Already Loaded");
             return;
@@ -135,17 +114,11 @@ public class HolidaysManager implements EventListener {
         }
         else {
             ColorfulConsole.WriteLine(Red(Underline),"Error loading page: " + holidaysUrl);
+            isLoaded = false;
             return;
         }
         isLoaded = true;
         ColorfulConsole.WriteLine(Green(Underline), "Loaded: 230+ Countries from timeanddate.com/holidays");
-        if(saveToFile)
-            try {
-                this.SaveToFile ();
-            }
-            catch (IOException e) {
-                e.printStackTrace ();
-            }
     }
 
     public List<Holiday> getHolidays(String country){
@@ -160,6 +133,9 @@ public class HolidaysManager implements EventListener {
      *                 eg: 2017-12-25 Christmas Day
      */
     public List<Holiday> getHolidays(String country, int year){
+
+        ColorfulConsole.WriteLine (Purple (Bold), "Loading " + year + " " + country + " holidays.");
+
         String url;
         if(year == -1){
             //Using current timeZone year
@@ -167,6 +143,16 @@ public class HolidaysManager implements EventListener {
             year = now().getYear();
         }
         else url = holidaysUrl + country + "/" + year;
+
+        Tuple <Boolean, List> booleanArrayListTuple = tryLoadFromFile (country, year);
+        //If we were able to load from a file! get it from there
+        if(booleanArrayListTuple.a) {
+            ColorfulConsole.WriteLine (Green (Bold), "File found.");
+            return booleanArrayListTuple.b;
+        }
+
+        ColorfulConsole.WriteLine (Yellow (Bold), "File not found. Trying to Download instead");
+        ColorfulConsole.WriteLine (Red (Bold), "Make sure you have a stable internet connection");
         //ColorfulConsole.WriteLineFormatted ("{0}Connecting to: {1}"+url,
         //        Green (Regular), Green (Underline));
         doc = Connect(url);
@@ -214,12 +200,63 @@ public class HolidaysManager implements EventListener {
                 holidays.add(holiday);
             }
         }
+
+        if(App.SaveToFile)
+            try {
+                saveToFile (country, year, holidays);
+            }
+            catch (IOException e) {
+                e.printStackTrace ();
+            }
+
         return holidays;
     }
 
-    public ArrayList LoadFromFile(String country){
-        Path path = Paths.get (".\\src\\Resources\\" + country + ".json");
-        ArrayList arrayList = this.gson.fromJson (path.toString (), ArrayList.class);
+    public Tuple
+            <Boolean, ArrayList
+                    <Tuple
+                            <Integer, List
+                                    <Holiday>>>> tryLoadFromFile(String country, int yearFrom, int to){
+
+        ArrayList<Tuple<Integer, List<Holiday>>> holidaysByYear = new ArrayList <> ();
+        List arrayList;
+        for (int i = yearFrom; i <= to; i++){
+
+            if(!fileExists (country,i)) {
+                ColorfulConsole.WriteLine (Red (Bold), "Error occurred while loading from File (Stopping)");
+                return new Tuple <> (false, null);
+            }
+
+            try {
+                arrayList = loadFromFile (country, i);
+            }
+            catch (NullPointerException | EmptyStackException | FileNotFoundException e){
+                return new Tuple <> (false, null);
+            }
+            Tuple<Integer, List<Holiday>> resHolidays = new Tuple <> (i, arrayList);
+            holidaysByYear.add (resHolidays);
+        }
+        return new Tuple <> (true, holidaysByYear);
+    }
+
+    public Tuple<Boolean, List> tryLoadFromFile(String country, int year){
+        if(!fileExists (country,year))
+            return new Tuple <> (false, null);
+        List arrayList;
+        try {
+            arrayList = loadFromFile (country, year);
+        }
+        catch (NullPointerException | EmptyStackException | FileNotFoundException e){
+            return new Tuple <> (false, null);
+        }
+        return new Tuple <> (true, arrayList);
+    }
+
+    public List loadFromFile(String country, int year) throws FileNotFoundException {
+        Path path = Paths.get (".\\src\\Resources\\" + country + "_" + year + ".json");
+        Type aClass = new TypeToken<List<Holiday>> () {}.getType ();
+        FileReader reader = new FileReader(path.toString ());
+        List arrayList = this.gson.fromJson (reader, aClass);
 
         if(arrayList == null)
             throw new NullPointerException ();
@@ -230,43 +267,26 @@ public class HolidaysManager implements EventListener {
         return arrayList;
     }
 
-    public boolean checkSaves(){
-        Path path = Paths.get (".\\src\\Resources\\");
-        String[] length = new File (path.toUri ()).list ();
-        int i = 0;
-        if(length != null) {
-            i = length.length;
-        }
-        return i >= 200;
+    public void saveToFile(String country, int year, List <Holiday>  result) throws IOException {
+        if (!isLoaded)
+            return;
+
+        //Para cada pais criar uma file
+        Path path = Paths.get (".\\src\\Resources\\" + country + "_" + year + ".json");
+        Writer writer = new FileWriter (path.toString ());
+
+        Type aClass = new TypeToken<List<Holiday>> () {}.getType ();
+        gson.toJson (result, aClass, writer);
+        writer.close ();
     }
 
-    float pr = 0;
+    public String[] checkSaves(){
+        Path path = Paths.get (".\\src\\Resources\\");
+        return new File (path.toUri ()).list ();
+    }
 
-    public void SaveToFile() throws IOException {
-        if(!isLoaded)
-            return;
-
-        if(checkSaves ())
-        {
-            ColorfulConsole.WriteLine (Green (Underline), "Countries already saved to Disk");
-            return;
-        }
-
-        for (Tuple <String, List <String>> stringListTuple : this.Columns) {
-            List <String> stringList = stringListTuple.b;
-            onSaveToFileProgressUpdated.Invoke (pr);
-            ColorfulConsole.WriteLine (Green (Regular),"Downloading " + stringListTuple.a + " Zone...");
-            for (String s : stringList) {
-                List <Holiday> holidays = getHolidays (s);
-                //Para cada pais criar uma file
-                Path path = Paths.get (".\\src\\Resources\\" + s + ".json");
-                Writer writer = new FileWriter (path.toString ());
-                gson.toJson (holidays, writer);
-                writer.close();
-            }
-            pr += 100 / this.Columns.size ();
-            if(pr >= 99.0f)
-                ColorfulConsole.WriteLine (Green (Regular),"Done!");
-        }
+    public boolean fileExists(String country, int year){
+        Stream <String> arrayList = Arrays.stream (checkSaves ());
+        return arrayList.anyMatch ((st) -> st.contains (country + "_" + year));
     }
 }

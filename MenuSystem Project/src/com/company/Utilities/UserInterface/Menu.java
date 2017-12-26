@@ -91,7 +91,10 @@ public class Menu implements MenuInterface, EventListener {
     }
 
     public boolean RemoveOption(Integer option) {
-        return functions.contains(option) && functions.remove(option);
+        if (functions.get (option) != null)
+            if (functions.remove ((int) option) != null)
+                return true;
+        return false;
     }
 
     public void ProcessInput() {
@@ -107,6 +110,8 @@ public class Menu implements MenuInterface, EventListener {
         else if(GetSize() >= 1 && line.length() >= 1){
             try {
                cmd = Integer.parseInt(line);
+               if(cmd > functions.size ())
+                   return;
             }
             catch (NumberFormatException e) {
                 out.println("Input not recognized");
@@ -120,13 +125,18 @@ public class Menu implements MenuInterface, EventListener {
 
         //LogSystem.WriteLog("Current Menu -> " + this.menuName + " | User Input -> " + cmd);
         Executor executor = functions.get(cmd - 1);
-        MenuInterface chooseMenu = null;
-        Tuple t = null;
+        MenuInterface chooseMenu;
+        Tuple t;
         Object run = executor.Run ();
         try{
             t = (Tuple) run;
-        }catch (Exception e){
+        }catch (ClassCastException e){
             chooseMenu = (MenuInterface) run;
+            app.setActiveMenu(chooseMenu, null);
+            if(chooseMenu != this){
+                onMenuChanged.Invoke();
+            }
+            return;
         }
 
         if(t != null){
@@ -135,17 +145,7 @@ public class Menu implements MenuInterface, EventListener {
             if(chooseMenu != this){
                 onMenuChanged.Invoke();
             }
-            return;
         }
-
-        if(chooseMenu != null) {
-            app.setActiveMenu(chooseMenu, null);
-            if(chooseMenu != this){
-                onMenuChanged.Invoke();
-            }
-            return;
-        }
-        out.println("No MENU could be selected");
     }
 
 

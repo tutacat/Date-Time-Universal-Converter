@@ -168,7 +168,8 @@ public class Temporals {
                 prevYear = localDate.getYear ();
                 if(holidays != null)
                     holidays.clear ();
-                holidays = new ArrayList <> (App.holidaysManager.getHolidays (country, localDate.getYear ()));
+                holidays = new ArrayList <> (App.holidaysManager
+                        .getHolidays (country, localDate.getYear ()));
             }
             for (Holiday holiday : holidays)
             {
@@ -203,7 +204,8 @@ public class Temporals {
                 prevYear = localDate.getYear ();
                 if(holidays != null)
                     holidays.clear ();
-                holidays = new ArrayList <> (App.holidaysManager.getHolidays (country, localDate.getYear ()));
+                holidays = new ArrayList <> (App.holidaysManager
+                        .getHolidays (country, localDate.getYear ()));
             }
             if(includeWeekEnds && weekend) {
                 //Advance to Monday from Saturday

@@ -11,6 +11,7 @@ import com.company.Utilities.ChronoMenusUtilities;
 import com.company.Utilities.Colorfull_Console.ColorfulConsole;
 import com.company.Utilities.Events.EventListener;
 import com.company.Utilities.Net.Holiday;
+import com.company.Utilities.Temporals;
 import com.company.Utilities.Tuple;
 
 import java.time.DayOfWeek;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import static com.company.App.SaveToFile;
 import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Green;
 import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Modifier.Regular;
 import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Modifier.Underline;
@@ -64,6 +66,7 @@ public class Menus implements EventListener {
         MenuInterface locationOptions = MenuFactory.getMenu (app, "Location Options");
 
         //================================= MAIN MENU =========================================================
+        main_menu.SetRows (2);
         main_menu.SetHeader("This is the main menu");
         main_menu.AddOption("Time Operations", () -> main_menu);
         main_menu.AddOption("Date Operations", () -> {
@@ -76,6 +79,14 @@ public class Menus implements EventListener {
             if(dates == null)
                 dates = new Date ();
             return worldLocations;
+        });
+        main_menu.AddOption ("Toggle Save to file", () -> {
+            ColorfulConsole.WriteLine(Green(Regular), "Should the application save All the holidays in a certain year\n" +
+                    " every time the user requests holidays");
+            SaveToFile = !SaveToFile;
+            ColorfulConsole.WriteLineFormatted("{0}Save to File set to: {1}" + SaveToFile,
+                    Green(Regular), Red(Regular));
+            return main_menu;
         });
         main_menu.AddExitOption(exit_menu);
         //====================================================================================================
@@ -204,7 +215,7 @@ public class Menus implements EventListener {
         //====================================================================================================
 
         //=====================================HOLIDAYS=======================================================
-        App.holidaysManager.loadZones(true);
+        App.holidaysManager.loadZones();
         final int[] i = {0};
         for (Tuple t : App.holidaysManager.Columns){
             MenuInterface location = locations[i[0]];
@@ -221,9 +232,14 @@ public class Menus implements EventListener {
         //====================================================================================================
 
         //================================= LOCATION OPTIONS =================================================
-        locationOptions.AddOption ("Show All holidays", () -> {
+        locationOptions.AddOption ("Show All holidays given a Year", () -> {
+            int nextInt = -10;
+            while(!Temporals.valueIsValid (ChronoUnit.YEARS, nextInt)){
+                nextInt = ColorfulConsole.ReadNextInt ();
+            }
+
             String s = (String) ((Object[]) locationOptions.getArg ())[0];
-            List<Holiday> holidays = App.holidaysManager.getHolidays (s);
+            List<Holiday> holidays = App.holidaysManager.getHolidays (s, nextInt);
             String formatted = String.format ("{0}Found {1}%d{0} Holidays in {1}%s", holidays.size (), s);
             ColorfulConsole.WriteLineFormatted (formatted, Green (Regular), Red (Underline));
             holidays.forEach((r) -> ColorfulConsole.WriteLine(Green(Regular),
@@ -233,13 +249,19 @@ public class Menus implements EventListener {
 
         locationOptions.AddOption(() -> {
             String country = (String) ((Object[]) locationOptions.getArg ())[0];
+
+            //Create Custom Dates
             ColorfulConsole.WriteLine (Green (Underline) ,"Create a Finishing Date");
             LocalDate customDate = ChronoMenusUtilities.CreateLocalDate();
             ColorfulConsole.WriteLine (Green (Underline) ,"Create a Starting Date");
             LocalDate startDate = ChronoMenusUtilities.CreateLocalDate ();
+
+            //Should the algorithm include holidays
             boolean choice = choice("?Include Holidays?");
+
             int res = customDate.query(dates.workDaysUntilDate(startDate, choice, country));
-            String s = String.format("{1}%s: {0}Working from {1}Monday {0}to {1}Friday\n" +
+
+            String s = String.format("{0}In {1}%s: {0}Working from {1}Monday {0}to {1}Friday\n" +
                             "{0}There are {1}%d {0}Working Days until {1}%s",
                     country ,res, customDate.format(DateTimeFormatter.ofPattern("d MMM uuuu")));
             ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
@@ -254,7 +276,7 @@ public class Menus implements EventListener {
             String country = (String) ((Object[]) locationOptions.getArg ())[0];
             boolean choice = choice("Include WeekEnds");
             int res = customDate.query(dates.holidaysUntilDate (startDate, choice, country));
-            String s = String.format("{1}%s: {0}There are {1}%d {0}Weekend/Holiday Days until {1}%s",
+            String s = String.format("{0}In {1}%s: {0}There are {1}%d {0}Weekend/Holiday Days until {1}%s",
                     country, res, customDate.format(DateTimeFormatter.ofPattern("d MMM uuuu")));
             ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
             return new Tuple<>(converter_Menu, new Object[]{  ChronoUnit.DAYS, res } );
@@ -276,9 +298,7 @@ public class Menus implements EventListener {
         ColorfulConsole.WriteLine (Green (Underline), additionalInfo);
         int i1 = ColorfulConsole.ReadNextInt ();
         boolean choice;
-        if(i1 == 1){
-            choice = true;
-        }else choice = false;
+        choice = i1 == 1;
         return choice;
     }
 }

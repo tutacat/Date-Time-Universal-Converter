@@ -1,6 +1,11 @@
 package com.company;
 
 import com.company.Operations.DateInterface;
+import com.company.Utilities.Colorfull_Console.ColorfulConsole;
+import com.company.Utilities.Events.Delegate;
+import com.company.Utilities.Events.Event;
+import com.company.Utilities.Events.EventExecutor;
+import com.company.Utilities.Events.EventListener;
 import com.company.Utilities.Temporals;
 
 import java.time.DayOfWeek;
@@ -8,11 +13,37 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.temporal.*;
 
+import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Blue;
+import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Green;
+import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Modifier.Bold;
+import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Modifier.Regular;
+import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.White;
 import static java.time.LocalDate.from;
 import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
 
-public class Date implements DateInterface {
+public class Date implements DateInterface, EventListener {
+
+    EventExecutor onOperationProgressUpdate = new EventExecutor (0, new Delegate (void.class, float.class));
+
+    private float progress = 0;
+
+    public Date(){
+        onOperationProgressUpdate.RegisterListener (this);
+    }
+
+    @Event(eventExecutorCode = 0)
+    public void setExecutor(float progress){
+        ColorfulConsole.Write (Blue (Bold), "<[");
+        for (int i = 0; i < 100; i += 5) {
+            if(i < progress) {
+                if(i > progress - 5)
+                    ColorfulConsole.Write (Green (Bold), "-");
+                else ColorfulConsole.Write (Green (Bold), "=");
+            }else ColorfulConsole.Write (White (Regular), " ");
+        }
+        ColorfulConsole.Write (Blue (Bold), "]> " + progress + "%\n");
+    }
 
     private int CheckAllDays(LocalDate start, LocalDate end, TemporalAdjuster adjuster){
         if(start == null || end == null)
@@ -20,15 +51,33 @@ public class Date implements DateInterface {
 
         int resultDays = 0;
         LocalDate date = start.minusDays(1);
+        int yearFrom = date.getYear ();
+        int to = end.getYear ();
+        int currentYear = yearFrom;
+
+        onOperationProgressUpdate.Invoke (progress);
+
         while (date.isBefore(end)){
+
             date = date.with(adjuster);
+            //TODO: Review this
             if(date.isAfter (end)) {
                 resultDays -= Period.between (end, date).getDays ();
                 break;
             }
             if(date.isBefore(end))
                 resultDays++;
+
+            //Update Progress
+            if(currentYear != date.getYear ())
+            {
+                currentYear = date.getYear ();
+                progress += 100 / (to - yearFrom);
+                onOperationProgressUpdate.Invoke (progress);
+            }
         }
+        onOperationProgressUpdate.Invoke (progress);
+        ColorfulConsole.WriteLine (Green (Regular), "Done!");
         return resultDays;
     }
 

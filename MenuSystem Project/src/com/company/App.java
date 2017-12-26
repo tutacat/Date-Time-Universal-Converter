@@ -23,6 +23,8 @@ public class App implements Application, EventListener {
 
     public static HolidaysManager holidaysManager;
 
+    public static boolean SaveToFile;
+
     private String AppName;
 
     private boolean IsRunning = false;
