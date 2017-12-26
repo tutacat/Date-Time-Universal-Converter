@@ -88,8 +88,15 @@ import static java.time.temporal.TemporalQueries.zoneId;
 
 public class TimeZone implements TimezoneInterface {
 
-    /*private final temporalQuery <LocalDateTime> currentHourInTimezoneQuery*/
+    private final temporalQuery <LocalDateTime> currentHourInTimezoneQuery =
+            (temporal) -> {
+                ZoneId idQuery = ZoneId.from(temporal);
+                ZoneId systemZoneId = ZoneId.SystemDefault();
+                LocalDateTime ldt = LocalDateTime.now();
+                ZonedDateTime zdtHere = ZonedDateTime.of(ldt, systemZoneId);
+                return zdtHere.withZoneSameInstant(idQuery);
+            }
 
     @Override
-    public temporalQuery <LocalDateTime> currentHourInTimezone() {return currentHourInTimezoneQuery;}
+    public temporalQuery <ZoneId> currentHourInTimezone() {return currentHourInTimezoneQuery;}
 }
