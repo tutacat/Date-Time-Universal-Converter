@@ -198,25 +198,24 @@ public class Temporals {
     public static boolean weekend = false;
     private static TemporalAdjuster adjustToNextHoliday(boolean includeWeekEnds, String country) {
         return temporal -> {
-            LocalDate localDate = LocalDate.from (temporal);
-            if(prevYear != localDate.getYear ()) {
-                prevYear = localDate.getYear ();
-                if(holidays != null)
-                    holidays.clear ();
-                holidays = new ArrayList <> (App.holidaysManager.getHolidays (country, localDate.getYear ()));
+            LocalDate localDate = LocalDate.from(temporal);
+            if (prevYear != localDate.getYear()) {
+                prevYear = localDate.getYear();
+                if (holidays != null)
+                    holidays.clear();
+                holidays = new ArrayList<>(App.holidaysManager.getHolidays(country, localDate.getYear()));
             }
-            if(includeWeekEnds && weekend) {
+            if (includeWeekEnds && weekend) {
                 //Advance to Monday from Saturday
                 weekend = false;
-                return localDate.plus (2, DAYS);
+                return localDate.plus(2, DAYS);
             }
 
             for (Holiday holiday : holidays) {
-                LocalDate holidayDate = holiday.getHolidayDate ();
-                LocalDate adjustedToWeekEnd = LocalDate.from (nextWeekendDay ().adjustInto (localDate));
-                if (holidayDate.isAfter (localDate))
-                {
-                    int value = holidayDate.getDayOfWeek ().getValue ();
+                LocalDate holidayDate = holiday.getHolidayDate();
+                LocalDate adjustedToWeekEnd = LocalDate.from(nextWeekendDay().adjustInto(localDate));
+                if (holidayDate.isAfter(localDate)) {
+                    int value = holidayDate.getDayOfWeek().getValue();
                     if (value >= 6) {
                         //Holidays is on a weekend
                         if (includeWeekEnds) {
@@ -224,7 +223,7 @@ public class Temporals {
                             return adjustedToWeekEnd;
                         }
                     }
-                    if (holidayDate.isBefore (adjustedToWeekEnd)) {
+                    if (holidayDate.isBefore(adjustedToWeekEnd)) {
                         return holidayDate;
                     } else {
                         weekend = true;
@@ -232,7 +231,7 @@ public class Temporals {
                     }
                 }
             }
-            return nextWorkingDay ().adjustInto (localDate);
+            return nextWorkingDay().adjustInto(localDate);
         };
     }
 
@@ -240,7 +239,7 @@ public class Temporals {
     static ValueRange MinutesRange = ValueRange.of(0,59);
     static ValueRange HoursRange = ValueRange.of(0, 23);
 
-    static  ValueRange DaysRange = ValueRange.of(1,31);
+    static ValueRange DaysRange = ValueRange.of(1,31);
     static ValueRange MonthsRange = ValueRange.of(1,12);
     static ValueRange YearsRange = ValueRange.of(0, Integer.MAX_VALUE);
 
