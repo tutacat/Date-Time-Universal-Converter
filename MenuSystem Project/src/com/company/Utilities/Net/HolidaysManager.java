@@ -67,9 +67,8 @@ public class HolidaysManager implements EventListener {
             return doc;
         }
         catch (IOException e) {
-            e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     /**

@@ -53,13 +53,21 @@ public class Date implements DateInterface, EventListener {
         LocalDate date = start.minusDays(1);
         int yearFrom = date.getYear ();
         int to = end.getYear ();
-        int currentYear = yearFrom;
+        int currentYear = 0;
 
         onOperationProgressUpdate.Invoke (progress);
 
         while (date.isBefore(end)){
 
             date = date.with(adjuster);
+
+            //Update Progress
+            if(currentYear != date.getYear ()) {
+                currentYear = date.getYear ();
+                progress += 100 / (to - yearFrom);
+                onOperationProgressUpdate.Invoke (progress);
+            }
+
             //TODO: Review this
             if(date.isAfter (end)) {
                 resultDays -= Period.between (end, date).getDays ();
@@ -67,16 +75,9 @@ public class Date implements DateInterface, EventListener {
             }
             if(date.isBefore(end))
                 resultDays++;
-
-            //Update Progress
-            if(currentYear != date.getYear ())
-            {
-                currentYear = date.getYear ();
-                progress += 100 / (to - yearFrom);
-                onOperationProgressUpdate.Invoke (progress);
-            }
         }
         onOperationProgressUpdate.Invoke (progress);
+        progress = 0;
         ColorfulConsole.WriteLine (Green (Regular), "Done!");
         return resultDays;
     }

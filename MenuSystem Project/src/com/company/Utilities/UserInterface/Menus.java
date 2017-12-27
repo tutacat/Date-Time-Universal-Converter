@@ -26,10 +26,9 @@ import java.util.List;
 import java.util.Locale;
 
 import static com.company.App.SaveToFile;
-import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Green;
+import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.*;
 import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Modifier.Regular;
 import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Modifier.Underline;
-import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Red;
 import static java.time.temporal.ChronoUnit.*;
 
 public class Menus implements EventListener {
@@ -125,6 +124,16 @@ public class Menus implements EventListener {
             ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
             return date_menu;
         });
+
+        date_menu.AddOption("Day of the Week", () -> {
+            LocalDate customDate = ChronoMenusUtilities.CreateLocalDate();
+            DayOfWeek query = customDate.query(dates.xthDayOfXthWeek ());
+            String s = String.format("{0}The day of the Week of {1}%s {0}is {1}%s",
+                    customDate.format(DateTimeFormatter.ISO_DATE), query.getDisplayName (TextStyle.FULL, Locale.UK));
+            ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
+            return date_menu;
+        });
+
 
         date_menu.AddOption ("Subtract a Date to a Date", () -> {
             ColorfulConsole.WriteLineFormatted("{0}Create a Date", Green(Regular));
@@ -235,6 +244,7 @@ public class Menus implements EventListener {
         locationOptions.AddOption ("Show All holidays given a Year", () -> {
             int nextInt = -10;
             while(!Temporals.valueIsValid (ChronoUnit.YEARS, nextInt)){
+                ColorfulConsole.Write (Green (Regular), "Year > ");
                 nextInt = ColorfulConsole.ReadNextInt ();
             }
 
@@ -242,8 +252,8 @@ public class Menus implements EventListener {
             List<Holiday> holidays = App.holidaysManager.getHolidays (s, nextInt);
             String formatted = String.format ("{0}Found {1}%d{0} Holidays in {1}%s", holidays.size (), s);
             ColorfulConsole.WriteLineFormatted (formatted, Green (Regular), Red (Underline));
-            holidays.forEach((r) -> ColorfulConsole.WriteLine(Green(Regular),
-                    r.getHolidayDate () + " " + r.getHolidayName ()));
+            holidays.forEach((r) -> ColorfulConsole.WriteLineFormatted ("{0}" + r.getHolidayDate () +
+                    " {1}" + r.getHolidayName (), Blue (Regular), Cyan (Underline)));
             return main_menu;
         });
 
