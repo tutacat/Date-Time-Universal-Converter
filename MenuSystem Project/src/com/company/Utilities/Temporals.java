@@ -3,6 +3,7 @@ package com.company.Utilities;
 import com.company.App;
 import com.company.Utilities.Net.Holiday;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -103,9 +104,9 @@ public class Temporals {
             public Temporal adjustInto(Temporal temporal) {
                 int dow = temporal.get(DAY_OF_WEEK);
                 if(dow == 6)
-                    return temporal.plus(dow + 1, DAYS);
+                    return temporal.plus(7, DAYS);
                 if(dow == 7)
-                    return temporal.plus (dow - 1, DAYS);
+                    return temporal.plus(6, DAYS);
                 return temporal.plus((7 - 1) - dow, DAYS);
             }
         },
@@ -148,7 +149,10 @@ public class Temporals {
         }
     }
 
-
+    public static boolean isWeekend(DayOfWeek dayOfWeek)
+    {
+        return dayOfWeek.getValue () >= 6;
+    }
 
     private static int prevYear = 0;
     private static List<Holiday> holidays;
@@ -207,10 +211,13 @@ public class Temporals {
                 holidays = new ArrayList <> (App.holidaysManager
                         .getHolidays (country, localDate.getYear ()));
             }
-            if(includeWeekEnds && weekend) {
+            if(isWeekend (localDate.getDayOfWeek ()) && includeWeekEnds && weekend) {
                 //Advance to Monday from Saturday
-                weekend = false;
-                return localDate.plus (2, DAYS);
+                localDate = localDate.plus (1, DAYS);
+                if(localDate.getDayOfWeek ().getValue () == 7) {
+                    weekend = false;
+                }
+                return localDate;
             }
 
             for (Holiday holiday : holidays) {
@@ -218,20 +225,12 @@ public class Temporals {
                 LocalDate adjustedToWeekEnd = LocalDate.from (nextWeekendDay ().adjustInto (localDate));
                 if (holidayDate.isAfter (localDate))
                 {
-                    int value = holidayDate.getDayOfWeek ().getValue ();
-                    if (value >= 6) {
-                        //Holidays is on a weekend
-                        if (includeWeekEnds) {
-                            weekend = true;
-                            return adjustedToWeekEnd;
-                        }
-                    }
-                    if (holidayDate.isBefore (adjustedToWeekEnd)) {
-                        return holidayDate;
-                    } else {
+                    boolean after = holidayDate.isAfter (adjustedToWeekEnd);
+                    if(includeWeekEnds && after || (includeWeekEnds && isWeekend (holidayDate.getDayOfWeek ()))) {
                         weekend = true;
                         return adjustedToWeekEnd;
                     }
+                    return holidayDate;
                 }
             }
             return nextWorkingDay ().adjustInto (localDate);

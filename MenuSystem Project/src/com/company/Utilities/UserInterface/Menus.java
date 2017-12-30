@@ -16,19 +16,19 @@ import com.company.Utilities.Tuple;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAccessor;
 import java.time.temporal.TemporalUnit;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import static com.company.App.SaveToFile;
 import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.*;
-import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Modifier.Regular;
-import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Modifier.Underline;
+import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Modifier.*;
+import static java.time.Month.DECEMBER;
 import static java.time.temporal.ChronoUnit.*;
 
 public class Menus implements EventListener {
@@ -48,19 +48,6 @@ public class Menus implements EventListener {
 
         MenuInterface worldLocations = MenuFactory.getMenu(app, "World Continents");
         worldLocations.SetRows (3);
-        MenuInterface[] locations = {
-                MenuFactory.getMenu (app, "North America"),
-                MenuFactory.getMenu (app, "Atlantic"),
-                MenuFactory.getMenu (app, "South America"),
-                MenuFactory.getMenu (app, "Australia Pacific"),
-                MenuFactory.getMenu (app, "UNWorld"),
-                MenuFactory.getMenu (app, "Asia"),
-                MenuFactory.getMenu (app, "Indian Ocean"),
-                MenuFactory.getMenu (app, "Europe"),
-                MenuFactory.getMenu (app, "Africa")};
-        for (MenuInterface location : locations) {
-            location.SetRows (5);
-        }
 
         MenuInterface locationOptions = MenuFactory.getMenu (app, "Location Options");
 
@@ -225,16 +212,19 @@ public class Menus implements EventListener {
 
         //=====================================HOLIDAYS=======================================================
         App.holidaysManager.loadZones();
-        final int[] i = {0};
-        for (Tuple t : App.holidaysManager.Columns){
-            MenuInterface location = locations[i[0]];
-            worldLocations.AddOption((String) t.a, () -> location);
-            for (Object o : ((ArrayList) t.b)) {
-                String oS = (String) o;
-                location.AddOption (() -> new Tuple<>(locationOptions, new Object[]{ oS } ), oS);
-            }
-            location.AddExitOption (worldLocations);
-            i[0]++;
+        //final int[] i = {0};
+        for (Tuple t : App.holidaysManager.Countries){
+            //MenuInterface location = locations[i[0]];
+            worldLocations.AddOption(() -> {
+                locationOptions.SetHeader ((String) t.b);
+                return new Tuple <> (locationOptions, new Object[]{t});
+            }, (String) t.b);
+            //for (Object o : ((ArrayList) t.b)) {
+            //    String oS = (String) o;
+            //    location.AddOption (() -> new Tuple<>(locationOptions, new Object[]{ oS } ), oS);
+            //}
+            //location.AddExitOption (worldLocations);
+            //i[0]++;
         }
 
         worldLocations.AddExitOption (main_menu);
@@ -248,17 +238,44 @@ public class Menus implements EventListener {
                 nextInt = ColorfulConsole.ReadNextInt ();
             }
 
-            String s = (String) ((Object[]) locationOptions.getArg ())[0];
+            Tuple<String, String> t = (Tuple) ((Object[]) locationOptions.getArg ())[0];
+            String s = t.a;
             List<Holiday> holidays = App.holidaysManager.getHolidays (s, nextInt);
-            String formatted = String.format ("{0}Found {1}%d{0} Holidays in {1}%s", holidays.size (), s);
+            String formatted = String.format ("{0}Found {1}%d{0} Holidays in {1}%s", holidays.size (), t.b);
             ColorfulConsole.WriteLineFormatted (formatted, Green (Regular), Red (Underline));
-            holidays.forEach((r) -> ColorfulConsole.WriteLineFormatted ("{0}" + r.getHolidayDate () +
-                    " {1}" + r.getHolidayName (), Blue (Regular), Cyan (Underline)));
+            final int[] counter = {0,0};
+            //JUst dont use january because if January wont be displayed
+            final Month[] cMonth = {DECEMBER};
+            holidays.forEach((Holiday r) -> {
+                Month month = r.getHolidayDate ().getMonth ();
+                if(month.getValue () != cMonth[0].getValue ()){
+                    ColorfulConsole.WriteLine (White (Regular), "");
+                    cMonth[0] = month;
+                    String s2 = "----------------%14s%-10s----------------";
+                    String format = String.format (s2, cMonth[0], "");
+                    ColorfulConsole.WriteLine (Green (Bold), format);
+                }
+                DayOfWeek holidayDayOfWeek = r.getHolidayDayOfWeek ();
+                if(holidayDayOfWeek.getValue () >= 6){
+                    String s1 = String.format ("{0}%s {1}%10s", r.toString (), r.getHolidayName ());
+                    ColorfulConsole.WriteLineFormatted (s1, Red (Regular), Cyan (Underline));
+                    counter[0]++;
+                }
+                else {
+                        ColorfulConsole.WriteLineFormatted ("{0}" + r.toString () +
+                            " {1}" + r.getHolidayName (), Blue (Regular), Cyan (Underline));
+                        counter[1]++;
+                    }
+            });
+            String res = String.format ("{1}2018{0} -> In %s were found {1}%d {2}Weekend Holiday(s) {0}and {1}%d {2}Week Day Holiday(s)",
+                    s, counter[0], counter[1]);
+            ColorfulConsole.WriteLineFormatted (res, Green (Regular), Red (Regular), Blue (Bold));
             return main_menu;
         });
 
         locationOptions.AddOption(() -> {
-            String country = (String) ((Object[]) locationOptions.getArg ())[0];
+            Tuple<String, String> t = (Tuple) ((Object[]) locationOptions.getArg ())[0];
+            String country = t.a;
 
             //Create Custom Dates
             ColorfulConsole.WriteLine (Green (Underline) ,"Create a Finishing Date");
@@ -273,7 +290,7 @@ public class Menus implements EventListener {
 
             String s = String.format("{0}In {1}%s: {0}Working from {1}Monday {0}to {1}Friday\n" +
                             "{0}There are {1}%d {0}Working Days until {1}%s",
-                    country ,res, customDate.format(DateTimeFormatter.ofPattern("d MMM uuuu")));
+                    t.a ,res, customDate.format(DateTimeFormatter.ofPattern("d MMM uuuu")));
             ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
             return new Tuple<>(converter_Menu, new Object[]{  ChronoUnit.DAYS, res } );
         }, "Working Days Until");
@@ -283,11 +300,13 @@ public class Menus implements EventListener {
             LocalDate customDate = ChronoMenusUtilities.CreateLocalDate();
             ColorfulConsole.WriteLine (Green (Underline) ,"Create a Starting Date");
             LocalDate startDate = ChronoMenusUtilities.CreateLocalDate ();
-            String country = (String) ((Object[]) locationOptions.getArg ())[0];
+
+            Tuple<String, String> t = (Tuple) ((Object[]) locationOptions.getArg ())[0];
+            String country = t.a;
             boolean choice = choice("Include WeekEnds");
             int res = customDate.query(dates.holidaysUntilDate (startDate, choice, country));
             String s = String.format("{0}In {1}%s: {0}There are {1}%d {0}Weekend/Holiday Days until {1}%s",
-                    country, res, customDate.format(DateTimeFormatter.ofPattern("d MMM uuuu")));
+                    t.b, res, customDate.format(DateTimeFormatter.ofPattern("d MMM uuuu")));
             ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
             return new Tuple<>(converter_Menu, new Object[]{  ChronoUnit.DAYS, res } );
         }, "Holiday Days Until");

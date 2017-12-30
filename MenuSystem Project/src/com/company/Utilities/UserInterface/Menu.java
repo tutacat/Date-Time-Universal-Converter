@@ -194,10 +194,9 @@ public class Menu implements MenuInterface, EventListener {
 
     public void Show(String decorator) {
         out.println(App.This.getName());
-        //out.println(decorator);
         ColorfulConsole.WriteLine(Blue(Bold), decorator);
         if(!Objects.equals(menuHeader, EMPTY_STRING)) {
-            ColorfulConsole.WriteLine(Red(Bold), menuHeader);
+            ColorfulConsole.WriteLine(Purple (Bold), menuHeader);
         }
 
         boolean b = false;

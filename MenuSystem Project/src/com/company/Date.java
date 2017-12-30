@@ -10,14 +10,11 @@ import com.company.Utilities.Temporals;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.temporal.*;
 
-import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Blue;
-import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Green;
+import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.*;
 import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Modifier.Bold;
 import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Modifier.Regular;
-import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.White;
 import static java.time.LocalDate.from;
 import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -60,19 +57,20 @@ public class Date implements DateInterface, EventListener {
         while (date.isBefore(end)){
 
             date = date.with(adjuster);
+            if(date.isAfter (end))
+                break;
 
             //Update Progress
             if(currentYear != date.getYear ()) {
                 currentYear = date.getYear ();
-                progress += 100 / (to - yearFrom);
+                int div = (to - yearFrom);
+                if(div == 0) {
+                    div = 1;
+                }
+                progress += 100 / div;
                 onOperationProgressUpdate.Invoke (progress);
             }
 
-            //TODO: Review this
-            if(date.isAfter (end)) {
-                resultDays -= Period.between (end, date).getDays ();
-                break;
-            }
             if(date.isBefore(end))
                 resultDays++;
         }

@@ -4,8 +4,7 @@ import com.company.App;
 import com.company.Utilities.Colorfull_Console.ColorfulConsole;
 import com.company.Utilities.Events.EventListener;
 import com.company.Utilities.Tuple;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -15,60 +14,86 @@ import org.jsoup.select.Elements;
 
 import java.io.*;
 import java.lang.reflect.Type;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EmptyStackException;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.*;
-import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Modifier.*;
-import static java.time.LocalDate.now;
+import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Modifier.Bold;
+import static com.company.Utilities.Colorfull_Console.ConsoleColors.AnsiColor.Modifier.Underline;
+import static java.time.OffsetDateTime.now;
 
 public class HolidaysManager implements EventListener {
+
     /**
      * So this website works like this
      *
-     * www.timeanddate.com/holidays/  -> this is where all locations are
-     *                          .../name_of_the_country -> Shows us all the day and month were a certain holiday is
-     *                          .../.../2017 -> the year
+     * Returns the public holidays from given country and year
+     * http://publicholiday.azurewebsites.net/api/v1/get/{CountryCode}/{Year}
      * */
-    public static final String holidaysUrl = "https://www.timeanddate.com/holidays/";
+    public static final String holidaysUrl = "http://publicholiday.azurewebsites.net/Home/Countries";
+    public static final String holidaysGetUrl = "http://publicholiday.azurewebsites.net/api/v1/get";
 
     /**
      * All the countries available in the website
      *
      * Around 230 entries
      * */
-    public List<Tuple<String, List<String>>> Columns;
+    public List<Tuple<String , String>> Countries;
 
 
     /**
      * Google GSON Used to parse all the holidays to Disk
      * */
     private Gson gson;
+    private boolean isLoaded = false;
+    private Document doc;
+    Connection connection;
 
     public HolidaysManager(){
         gson = new GsonBuilder ().create ();
-        Columns = new ArrayList<>();
+        Countries = new ArrayList<>();
     }
 
-    private boolean isLoaded = false;
-
-    Document doc;
+    private String buildGetURL(String countryCode, int year){
+        String url;
+        if(year <= 0)
+            url = String.format ("%s/%s", holidaysGetUrl, countryCode);
+        else url = String.format ("%s/%s/%d", holidaysGetUrl,countryCode,year);
+        return url;
+    }
 
     private Document Connect(String string) {
         try {
-            Connection connect = Jsoup.connect(string);
-            connect.maxBodySize(0);
-            doc = connect.get();
+            connection = Jsoup.connect(string);
+            connection.maxBodySize(0);
+            doc = connection.get();
             return doc;
         }
         catch (IOException e) {
             return null;
         }
+    }
+
+    private JsonArray GetResponse(String string) {
+        try {
+            URL url = new URL (string);
+            HttpURLConnection request = (HttpURLConnection) url.openConnection();
+            request.connect ();
+            JsonParser jp = new JsonParser(); //from gson
+            JsonElement root = jp.parse(new InputStreamReader((InputStream) request.getContent())); //Convert the input stream to a json element
+            return root.getAsJsonArray ();
+        }
+        catch (IOException e) {
+            e.printStackTrace ();
+        }
+        return null;
     }
 
     /**
@@ -81,35 +106,20 @@ public class HolidaysManager implements EventListener {
         }
 
         doc = Connect(holidaysUrl);
-        Elements headLines;
-        int i = 0;
         if (doc != null) {
-            headLines = doc.getElementsByTag("div");
-            for (Element element : headLines) {
-                if (element.hasClass("three columns")) {
-                    Elements h3Element = element.getElementsByTag("h3");
-                    Elements ulElement = element.getElementsByTag("ul");
-                    for (Element element1 : h3Element) {
-                        if (element1.hasClass("mgt0")) {
-                            Tuple t = new Tuple(element1.text(), new ArrayList<String>());
-                            Columns.add(t);
-                        }
-                    }
-                    for (Element element1 : ulElement) {
-                        Elements li = element1.getElementsByTag("li");
-                        for (Element element3 : li) {
-                            String urlPart = element3.getElementsByTag ("a").attr ("href");
-                            String[] parts = urlPart.split ("/");
-                            String country = parts[2];
-                            //String a = element3.getElementsByTag ("a").text ();
-                            //a = a.replaceAll (" ", "-");
-                            //a = a.toLowerCase (Locale.UK);
-                            Columns.get (i).b.add (country);
-                        }
-                        i++;
-                    }
-                }
-            }
+           Elements table = doc.getElementsByTag ("table");
+           table.forEach ((element) -> {
+               if(element.hasClass ("table")){
+                   element.children ().forEach ((children) -> {
+                       for (Element tr : element.getElementsByTag ("tr")) {
+                           Elements td = tr.getElementsByTag ("td");
+                           String fullName = td.first ().text ();
+                           String abv = td.get (1).text ();
+                           Countries.add (new Tuple <> (abv, fullName));
+                       }
+                   });
+               }
+           });
         }
         else {
             ColorfulConsole.WriteLine(Red(Underline),"Error loading page: " + holidaysUrl);
@@ -117,7 +127,8 @@ public class HolidaysManager implements EventListener {
             return;
         }
         isLoaded = true;
-        ColorfulConsole.WriteLine(Green(Underline), "Loaded: 230+ Countries from timeanddate.com/holidays");
+        ColorfulConsole.WriteLine(Green(Underline), "Loaded: " + Countries.size ()
+                + "  Countries from " + holidaysUrl);
     }
 
     public List<Holiday> getHolidays(String country){
@@ -132,16 +143,17 @@ public class HolidaysManager implements EventListener {
      *                 eg: 2017-12-25 Christmas Day
      */
     public List<Holiday> getHolidays(String country, int year){
-
-        ColorfulConsole.WriteLine (Purple (Bold), "Loading " + year + " " + country + " holidays.");
-
         String url;
-        if(year == -1){
-            //Using current timeZone year
-            url = holidaysUrl + country;
+        if(year <= 0){
             year = now().getYear();
         }
-        else url = holidaysUrl + country + "/" + year;
+        url = buildGetURL (country, year);
+
+        //Only get official holidays
+        //url += URL_OFFICIAL_NONWORKING_HOLIDAYS_CODE;
+
+        ColorfulConsole.WriteLine (Purple (Bold), "Loading " + year + " " + country + " holidays.");
+        ColorfulConsole.WriteLine (Purple (Bold), url);
 
         Tuple <Boolean, List> booleanArrayListTuple = tryLoadFromFile (country, year);
         //If we were able to load from a file! get it from there
@@ -154,50 +166,26 @@ public class HolidaysManager implements EventListener {
         ColorfulConsole.WriteLine (Red (Bold), "Make sure you have a stable internet connection");
         //ColorfulConsole.WriteLineFormatted ("{0}Connecting to: {1}"+url,
         //        Green (Regular), Green (Underline));
-        doc = Connect(url);
-        if(doc == null)
-        {
-            ColorfulConsole.WriteLine(Red(Underline),"Error loading page: " + url);
+        JsonArray response = GetResponse (url);
+        if(response == null) {
+            ColorfulConsole.WriteLine (Red (Underline), "Error loading page: " + url);
             return null;
         }
 
-        List<Holiday> holidays = new ArrayList <>();
-        LocalDate date = null;
-        String holidayName = null;
-
-        Elements tr = doc.getElementsByTag("tr");
-        for (Element etr : tr){
-            if(etr.hasClass("c0") || etr.hasClass("c1")){
-                Elements th = etr.getElementsByTag("th");
-                Elements td = etr.getElementsByTag("td");
-                for (Element elementTh : th){
-                    if(elementTh.hasClass("nw"))
-                    {
-                        //format Jan 1
-                        String monthDay = elementTh.text();
-                        //FullFormat yyyy MMM dd
-                        String fullDate = (year + " " + monthDay);
-                        DateTimeFormatter pattern = new DateTimeFormatterBuilder()
-                                .parseCaseSensitive()
-                                .appendPattern("yyyy MMM d")
-                                .toFormatter(Locale.UK);
-                        date = LocalDate.parse(fullDate, pattern);
-                    }
-                }
-
-                for (Element elementTd : td){
-                    Elements e = elementTd.getElementsByTag("a");
-                    if(e.size() > 0){
-                        //   .../holidays/country/
-                        holidayName = e.first().text();
-                        //I can break here! html does only have 1 'a' element
-                        break;
-                    }
-                }
-
-                Holiday holiday = new Holiday (date, holidayName);
-                holidays.add(holiday);
-            }
+        List<Holiday> holidays = new ArrayList <> ();
+        for (JsonElement jsonElement : response) {
+            JsonObject asJsonObject = jsonElement.getAsJsonObject ();
+            Holiday h = new Holiday ();
+            /*UGLY BUT WORKS*/
+            h.Name = asJsonObject.get ("name").getAsString ();
+            h.Date = asJsonObject.get ("date").getAsString ();
+            h.LocalName = asJsonObject.get ("localName").getAsString ();
+            h.CountryCode =asJsonObject.get ("countryCode").getAsString ();
+            h.Fixed = asJsonObject.get ("fixed").getAsBoolean ();
+            h.CountyOfficialHoliday = asJsonObject.get ("countyOfficialHoliday").getAsBoolean ();
+            h.CountyAdministrationHoliday = asJsonObject.get ("countyAdministrationHoliday").getAsBoolean ();
+            h.Global = asJsonObject.get ("global").getAsBoolean ();
+            holidays.add (h);
         }
 
         if(App.SaveToFile)
@@ -223,6 +211,7 @@ public class HolidaysManager implements EventListener {
 
             if(!fileExists (country,i)) {
                 ColorfulConsole.WriteLine (Red (Bold), "Error occurred while loading from File (Stopping)");
+                ColorfulConsole.WriteLine (Red (Bold), "File does not Exist (Stopping)");
                 return new Tuple <> (false, null);
             }
 
