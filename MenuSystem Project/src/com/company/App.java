@@ -106,7 +106,8 @@ public class App implements Application, EventListener {
         this.OnStateChangedEvent.RegisterListener(this);
         this.OnApplicationClose.RegisterListener(this);
 
-        Menus.CreateMenus(this);
+        Menus m = new Menus ();
+        m.CreateMenus(this);
 
         /*
         * Modo Inicial = Main Menu

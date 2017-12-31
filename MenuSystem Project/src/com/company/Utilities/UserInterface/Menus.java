@@ -1,14 +1,13 @@
 package com.company.Utilities.UserInterface;
 
 import com.company.App;
+import com.company.Chronometer;
 import com.company.Date;
 import com.company.DateConverter;
-import com.company.Operations.Application;
-import com.company.Operations.DateInterface;
-import com.company.Operations.IDateConverter;
-import com.company.Operations.MenuInterface;
+import com.company.Operations.*;
 import com.company.Utilities.ChronoMenusUtilities;
 import com.company.Utilities.Colorfull_Console.ColorfulConsole;
+import com.company.Utilities.Events.Event;
 import com.company.Utilities.Events.EventListener;
 import com.company.Utilities.Net.Holiday;
 import com.company.Utilities.Temporals;
@@ -33,23 +32,35 @@ import static java.time.temporal.ChronoUnit.*;
 
 public class Menus implements EventListener {
 
-    private static DateInterface dates;
-    private static IDateConverter dateConverter;
+    private DateInterface dates;
+    private IDateConverter dateConverter;
+    private IChronometer chronometer;
 
-    public static void CreateMenus(Application app)
+
+    MenuInterface main_menu;
+    MenuInterface date_menu;
+    MenuInterface exit_menu;
+    MenuInterface converter_Menu;
+    MenuInterface worldLocations;
+    MenuInterface locationOptions;
+    MenuInterface chronometerMenu;
+
+    public void CreateMenus(Application app)
     {
         dateConverter = new DateConverter();
 
-        MenuInterface main_menu = MenuFactory.getMenu(app, "Main Menu");
-        MenuInterface date_menu = MenuFactory.getMenu(app, "Date Menu");
-        MenuInterface exit_menu = MenuFactory.getMenu(app, "Exit Menu");
+        main_menu = MenuFactory.getMenu(app, "Main Menu");
+        date_menu = MenuFactory.getMenu(app, "Date Menu");
+        exit_menu = MenuFactory.getMenu(app, "Exit Menu");
 
-        MenuInterface converter_Menu = MenuFactory.getMenu(app, "Converter Menu");
+        converter_Menu = MenuFactory.getMenu(app, "Converter Menu");
 
-        MenuInterface worldLocations = MenuFactory.getMenu(app, "World Continents");
+        worldLocations = MenuFactory.getMenu(app, "World Continents");
         worldLocations.SetRows (3);
 
-        MenuInterface locationOptions = MenuFactory.getMenu (app, "Location Options");
+        locationOptions = MenuFactory.getMenu (app, "Location Options");
+
+        chronometerMenu = MenuFactory.getMenu (app, "Chronometer");
 
         //================================= MAIN MENU =========================================================
         main_menu.SetRows (2);
@@ -65,6 +76,12 @@ public class Menus implements EventListener {
             if(dates == null)
                 dates = new Date ();
             return worldLocations;
+        });
+        main_menu.AddOption ("Chronometer", () -> {
+            chronometer = new Chronometer ();
+            ((Chronometer)chronometer).onChronometerStateChanged.RegisterListener (this);
+            chronometerMenu.SetHeader ("Chronometer State: " + ((Chronometer) chronometer).isStopped ());
+            return chronometerMenu;
         });
         main_menu.AddOption ("Toggle Save to file", () -> {
             ColorfulConsole.WriteLine(Green(Regular), "Should the application save All the holidays in a certain year\n" +
@@ -314,6 +331,25 @@ public class Menus implements EventListener {
         locationOptions.AddExitOption (main_menu);
         //====================================================================================================
 
+        //================================= CHRONOMETER MENU =================================================
+        chronometerMenu.AddOption ("Start", () -> {
+            chronometer.start ();
+            return chronometerMenu;
+        });
+        chronometerMenu.AddOption ("Lap", () -> {
+            chronometer.lap ();
+            chronometer.Print ();
+            return chronometerMenu;
+        });
+        chronometerMenu.AddOption ("Stop",() -> {
+            chronometer.stop ();
+            return chronometerMenu;
+        });
+
+        chronometerMenu.AddExitOption (main_menu);
+        //====================================================================================================
+
+
         //================================= EXIT MENU ========================================================
         exit_menu.AddOption("Press Enter", () -> {
             app.SetState(Application.State.closed);
@@ -322,7 +358,14 @@ public class Menus implements EventListener {
         //====================================================================================================
     }
 
-    private static boolean choice(String additionalInfo){
+    @Event(eventExecutorCode = 0)
+    public void setOnChronometerStateChangedEvent(boolean state) {
+        if(state)
+            chronometerMenu.SetHeader ("Chronometer State: Stopped");
+        else chronometerMenu.SetHeader ("Chronometer State: Running");
+    }
+
+    private boolean choice(String additionalInfo){
         ColorfulConsole.WriteLine (Green (Underline), "Choose your Option 1 = YES other number = NO");
         ColorfulConsole.WriteLine (Green (Underline), additionalInfo);
         int i1 = ColorfulConsole.ReadNextInt ();

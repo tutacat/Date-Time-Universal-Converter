@@ -1,6 +1,6 @@
 package com.company.Operations;
 
-interface Chronometer{
+public interface IChronometer extends IPrintable {
 	void start();
 	long stop();
 	void lap();
