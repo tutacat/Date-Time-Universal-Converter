@@ -40,7 +40,7 @@ public class Chronometer implements IChronometer, EventListener {
 
     public Chronometer(){
         laps = new PriorityQueue <> (LapCapacity);
-        onChronometerStateChanged.removeListener (this);
+        onChronometerStateChanged.RegisterListener (this);
     }
 
     @Override
