@@ -37,78 +37,81 @@ public class Menus implements EventListener {
     private IChronometer chronometer;
 
 
-    MenuInterface main_menu;
-    MenuInterface date_menu;
-    MenuInterface exit_menu;
-    MenuInterface converter_Menu;
+    MenuInterface mainMenu;
+    MenuInterface dateMenu;
+    MenuInterface exitMenu;
+    MenuInterface convertMenu;
     MenuInterface worldLocations;
     MenuInterface locationOptions;
+    MenuInterface timeMenu;
     MenuInterface chronometerMenu;
 
     public void CreateMenus(Application app)
     {
         dateConverter = new DateConverter();
 
-        main_menu = MenuFactory.getMenu(app, "Main Menu");
-        date_menu = MenuFactory.getMenu(app, "Date Menu");
-        exit_menu = MenuFactory.getMenu(app, "Exit Menu");
+        mainMenu = MenuFactory.getMenu(app, "Main Menu");
+        dateMenu = MenuFactory.getMenu(app, "Date Menu");
+        exitMenu = MenuFactory.getMenu(app, "Exit Menu");
 
-        converter_Menu = MenuFactory.getMenu(app, "Converter Menu");
+        convertMenu = MenuFactory.getMenu(app, "Converter Menu");
 
         worldLocations = MenuFactory.getMenu(app, "World Continents");
         worldLocations.SetRows (3);
 
         locationOptions = MenuFactory.getMenu (app, "Location Options");
 
+        timeMenu = MenuFactory.getMenu(app, "Time Menu");
+
         chronometerMenu = MenuFactory.getMenu (app, "Chronometer");
 
         //================================= MAIN MENU =========================================================
-        main_menu.SetRows (2);
-        main_menu.SetHeader("This is the main menu");
-        main_menu.AddOption("Time Operations", () -> main_menu);
-        main_menu.AddOption("Date Operations", () -> {
+        mainMenu.SetRows (2);
+        mainMenu.SetHeader("This is the main menu");
+        mainMenu.AddOption("Time Operations", () -> mainMenu);
+        mainMenu.AddOption("Date Operations", () -> {
             if(dates == null)
                 dates = new Date ();
-            return date_menu;
+            return dateMenu;
         });
-        main_menu.AddOption("Time Zone Operations", () -> main_menu);
-        main_menu.AddOption ("Holidays", () -> {
+        mainMenu.AddOption("Time Zone Operations", () -> mainMenu);
+        mainMenu.AddOption ("Holidays", () -> {
             if(dates == null)
                 dates = new Date ();
             return worldLocations;
         });
-        main_menu.AddOption ("Chronometer", () -> {
+        mainMenu.AddOption ("Chronometer", () -> {
             chronometer = new Chronometer ();
             ((Chronometer)chronometer).onChronometerStateChanged.RegisterListener (this);
             chronometerMenu.SetHeader ("Chronometer State: " + ((Chronometer) chronometer).isStopped ());
             return chronometerMenu;
         });
-        main_menu.AddOption ("Toggle Save to file", () -> {
+        mainMenu.AddOption ("Toggle Save to file", () -> {
             ColorfulConsole.WriteLine(Green(Regular), "Should the application save All the holidays in a certain year\n" +
                     " every time the user requests holidays");
             SaveToFile = !SaveToFile;
             ColorfulConsole.WriteLineFormatted("{0}Save to File set to: {1}" + SaveToFile,
                     Green(Regular), Red(Regular));
-            return main_menu;
+            return mainMenu;
         });
-        main_menu.AddExitOption(exit_menu);
+        mainMenu.AddExitOption(exitMenu);
         //====================================================================================================
 
         //================================= DATES MENU =======================================================
-        date_menu.SetRows(2);
+        dateMenu.SetRows(2);
 
-        date_menu.SetMenuName("Date Menu");
-        date_menu.SetHeader("Menu that operate dates");
-        date_menu.AddOption("First Week Day", () -> {
+        dateMenu.SetMenuName("Date Menu");
+        dateMenu.SetHeader("Menu that operate dates");
+        dateMenu.AddOption("First Week Day", () -> {
             LocalDate customDate = ChronoMenusUtilities.CreateLocalDate();
             DayOfWeek dayOfWeek = customDate.query(dates.firstWeekDayOfXthYear());
             String formatted = String.format("{0}The First day of the week in the year of {1}%d {0}is: {1}%s",
                     customDate.getYear(), dayOfWeek.getDisplayName(TextStyle.FULL, Locale.UK));
             ColorfulConsole.WriteLineFormatted(formatted, Green(Regular), Red(Regular));
-            return date_menu;
+            return dateMenu;
         });
 
-        date_menu.AddOption(() -> {
+        dateMenu.AddOption(() -> {
             LocalDate customDate = ChronoMenusUtilities.CreateLocalDate();
             int res = customDate.query(dates.daysLeftUntilXthDay());
             String s = String.format("{0}There are {1}%d {0}days until {1}%s", res, customDate
@@ -117,29 +120,29 @@ public class Menus implements EventListener {
             /**
              * This is a example when we want to send some info to the result menu
              * */
-            return new Tuple<>(converter_Menu, new Object[]{  ChronoUnit.DAYS, res } );
+            return new Tuple<>(convertMenu, new Object[]{  ChronoUnit.DAYS, res } );
         }, "Days Until");
 
-        date_menu.AddOption("Day of the Year", () -> {
+        dateMenu.AddOption("Day of the Year", () -> {
             LocalDate customDate = ChronoMenusUtilities.CreateLocalDate();
             Integer query = customDate.query(dates.xthDayOfXthYear());
             String s = String.format("{0}The day of the Year of {1}%s {0}is {1}%d",
                     customDate.format(DateTimeFormatter.ISO_DATE), query);
             ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
-            return date_menu;
+            return dateMenu;
         });
 
-        date_menu.AddOption("Day of the Week", () -> {
+        dateMenu.AddOption("Day of the Week", () -> {
             LocalDate customDate = ChronoMenusUtilities.CreateLocalDate();
             DayOfWeek query = customDate.query(dates.xthDayOfXthWeek ());
             String s = String.format("{0}The day of the Week of {1}%s {0}is {1}%s",
                     customDate.format(DateTimeFormatter.ISO_DATE), query.getDisplayName (TextStyle.FULL, Locale.UK));
             ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
-            return date_menu;
+            return dateMenu;
         });
 
 
-        date_menu.AddOption ("Subtract a Date to a Date", () -> {
+        dateMenu.AddOption ("Subtract a Date to a Date", () -> {
             ColorfulConsole.WriteLineFormatted("{0}Create a Date", Green(Regular));
             LocalDate customDate = ChronoMenusUtilities.CreateLocalDate ();
             ColorfulConsole.WriteLineFormatted("{0}Create a Date to subtract to the First date", Green(Regular));
@@ -152,11 +155,11 @@ public class Menus implements EventListener {
                     customDate1.format(DateTimeFormatter.ISO_DATE),
                     date.format (DateTimeFormatter.ISO_DATE));
             ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
-            return date_menu;
+            return dateMenu;
         });
 
 
-        date_menu.AddOption ("Sum a Date to a Date", () -> {
+        dateMenu.AddOption ("Sum a Date to a Date", () -> {
             ColorfulConsole.WriteLineFormatted("{0}Create a Date", Green(Regular));
             LocalDate customDate = ChronoMenusUtilities.CreateLocalDate ();
             ColorfulConsole.WriteLineFormatted("{0}Create a Date to add to the First date", Green(Regular));
@@ -169,62 +172,62 @@ public class Menus implements EventListener {
                     customDate1.format(DateTimeFormatter.ISO_DATE),
                     date.format (DateTimeFormatter.ISO_DATE));
             ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
-            return date_menu;
+            return dateMenu;
         });
 
-        date_menu.AddExitOption(main_menu);
+        dateMenu.AddExitOption(mainMenu);
         //====================================================================================================
 
         //================================= Converter Menu ========================================================
-        converter_Menu.AddOption("Convert to Milliseconds", () ->
+        convertMenu.AddOption("Convert to Milliseconds", () ->
         {
-            Object[] arg = (Object[]) converter_Menu.getArg();
+            Object[] arg = (Object[]) convertMenu.getArg();
             TemporalUnit temporalUnit = (TemporalUnit) arg[0];
             int amount = (int) arg[1];
             long i = dateConverter.toMilliseconds((TemporalUnit) arg[0], amount);
             String s = String.format("{1}%d {0}%s are equivalent to: {1}%d {0}%s", amount,
                     temporalUnit.toString(), i, MILLIS.toString());
             ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
-            return converter_Menu;
+            return convertMenu;
         });
 
-        converter_Menu.AddOption("Convert to Seconds", () ->
+        convertMenu.AddOption("Convert to Seconds", () ->
         {
-            Object[] arg = (Object[]) converter_Menu.getArg();
+            Object[] arg = (Object[]) convertMenu.getArg();
             TemporalUnit converterTemporal = (TemporalUnit) arg[0];
             int amount = (int) arg[1];
             long i = dateConverter.toSeconds(converterTemporal, amount);
             String s = String.format("{1}%d {0}%s are equivalent to: {1}%d {0}%s", amount,
                     converterTemporal.toString(), i, SECONDS.toString());
             ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
-            return converter_Menu;
+            return convertMenu;
         });
 
-        converter_Menu.AddOption("Convert to Minutes", () ->
+        convertMenu.AddOption("Convert to Minutes", () ->
         {
-            Object[] arg = (Object[]) converter_Menu.getArg();
+            Object[] arg = (Object[]) convertMenu.getArg();
             TemporalUnit converterTemporal = (TemporalUnit) arg[0];
             int amount = (int) arg[1];
             long i = dateConverter.toMinutes(converterTemporal, amount);
             String s = String.format("{1}%d {0}%s are equivalent to: {1}%d {0}%s", amount,
                     converterTemporal.toString(), i, MINUTES.toString());
             ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
-            return converter_Menu;
+            return convertMenu;
         });
 
-        converter_Menu.AddOption("Convert to Hours", () ->
+        convertMenu.AddOption("Convert to Hours", () ->
         {
-            Object[] arg = (Object[]) converter_Menu.getArg();
+            Object[] arg = (Object[]) convertMenu.getArg();
             TemporalUnit converterTemporal = (TemporalUnit) arg[0];
             int amount = (int) arg[1];
             long i = dateConverter.toHours(converterTemporal, amount);
             String s = String.format("{1}%d {0}%s are equivalent to: {1}%d {0}%s", amount,
                     converterTemporal.toString(), i, HOURS.toString());
             ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
-            return converter_Menu;
+            return convertMenu;
         });
 
-        converter_Menu.AddExitOption(main_menu);
+        convertMenu.AddExitOption(mainMenu);
         //====================================================================================================
 
         //=====================================HOLIDAYS=======================================================
@@ -244,7 +247,7 @@ public class Menus implements EventListener {
             //i[0]++;
         }
 
-        worldLocations.AddExitOption (main_menu);
+        worldLocations.AddExitOption (mainMenu);
         //====================================================================================================
 
         //================================= LOCATION OPTIONS =================================================
@@ -287,7 +290,7 @@ public class Menus implements EventListener {
             String res = String.format ("{1}2018{0} -> In %s were found {1}%d {2}Weekend Holiday(s) {0}and {1}%d {2}Week Day Holiday(s)",
                     s, counter[0], counter[1]);
             ColorfulConsole.WriteLineFormatted (res, Green (Regular), Red (Regular), Blue (Bold));
-            return main_menu;
+            return mainMenu;
         });
 
         locationOptions.AddOption(() -> {
@@ -309,7 +312,7 @@ public class Menus implements EventListener {
                             "{0}There are {1}%d {0}Working Days until {1}%s",
                     t.a ,res, customDate.format(DateTimeFormatter.ofPattern("d MMM uuuu")));
             ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
-            return new Tuple<>(converter_Menu, new Object[]{  ChronoUnit.DAYS, res } );
+            return new Tuple<>(convertMenu, new Object[]{  ChronoUnit.DAYS, res } );
         }, "Working Days Until");
 
         locationOptions.AddOption(() -> {
@@ -325,10 +328,21 @@ public class Menus implements EventListener {
             String s = String.format("{0}In {1}%s: {0}There are {1}%d {0}Weekend/Holiday Days until {1}%s",
                     t.b, res, customDate.format(DateTimeFormatter.ofPattern("d MMM uuuu")));
             ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
-            return new Tuple<>(converter_Menu, new Object[]{  ChronoUnit.DAYS, res } );
+            return new Tuple<>(convertMenu, new Object[]{  ChronoUnit.DAYS, res } );
         }, "Holiday Days Until");
 
-        locationOptions.AddExitOption (main_menu);
+        locationOptions.AddExitOption (mainMenu);
+        //====================================================================================================
+
+        //================================= TIME MENU ========================================================
+
+        /*
+        Falta adicionar as opções para os métodos do time menu
+        Tem de receber uma operação (soma/subtração) para adicionar à hora atual
+        Terá também uma opção para receber um inteiro de 0 a 86399 e invocar o método que determina a que hora corresponde o segundo dado
+        ETA amanhã
+         */
+
         //====================================================================================================
 
         //================================= CHRONOMETER MENU =================================================
@@ -346,14 +360,14 @@ public class Menus implements EventListener {
             return chronometerMenu;
         });
 
-        chronometerMenu.AddExitOption (main_menu);
+        chronometerMenu.AddExitOption (mainMenu);
         //====================================================================================================
 
 
         //================================= EXIT MENU ========================================================
-        exit_menu.AddOption("Press Enter", () -> {
+        exitMenu.AddOption("Press Enter", () -> {
             app.SetState(Application.State.closed);
-            return exit_menu;
+            return exitMenu;
         });
         //====================================================================================================
     }
