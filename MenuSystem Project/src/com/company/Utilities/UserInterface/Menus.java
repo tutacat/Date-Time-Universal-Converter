@@ -1,9 +1,6 @@
 package com.company.Utilities.UserInterface;
 
-import com.company.App;
-import com.company.Chronometer;
-import com.company.Date;
-import com.company.DateConverter;
+import com.company.*;
 import com.company.Operations.*;
 import com.company.Utilities.ChronoMenusUtilities;
 import com.company.Utilities.Colorfull_Console.ColorfulConsole;
@@ -15,6 +12,7 @@ import com.company.Utilities.Tuple;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
@@ -33,6 +31,7 @@ import static java.time.temporal.ChronoUnit.*;
 public class Menus implements EventListener {
 
     private DateInterface dates;
+    private TimeInterface times;
     private IDateConverter dateConverter;
     private IChronometer chronometer;
 
@@ -68,7 +67,11 @@ public class Menus implements EventListener {
         //================================= MAIN MENU =========================================================
         mainMenu.SetRows (2);
         mainMenu.SetHeader("This is the main menu");
-        mainMenu.AddOption("Time Operations", () -> mainMenu);
+        mainMenu.AddOption("Time Operations", () -> {
+            if (times == null)
+                times = new Time();
+            return timeMenu;
+        });
         mainMenu.AddOption("Date Operations", () -> {
             if(dates == null)
                 dates = new Date ();
@@ -335,13 +338,50 @@ public class Menus implements EventListener {
         //====================================================================================================
 
         //================================= TIME MENU ========================================================
+        timeMenu.AddOption ("Sum an hour to an hour", () -> {
+            ColorfulConsole.WriteLineFormatted("{0}Create a timed hour", Green(Regular));
+            LocalTime customTime = ChronoMenusUtilities.CreateLocalTime();
+            ColorfulConsole.WriteLineFormatted("{0}Create a timed hour to add to the first one", Green(Regular));
+            LocalTime customTime1 = ChronoMenusUtilities.CreateLocalTime();
 
-        /*
-        Falta adicionar as opções para os métodos do time menu
-        Tem de receber uma operação (soma/subtração) para adicionar à hora atual
-        Terá também uma opção para receber um inteiro de 0 a 86399 e invocar o método que determina a que hora corresponde o segundo dado
-        ETA amanhã
-         */
+            TemporalAccessor query = customTime.query(times.addHourToCurrentTime(customTime1));
+            LocalTime time = LocalTime.from(query);
+            String s = String.format("{0}The result of adding {1}%s {0}to {1}%s {0}is: {1}%s",
+                    customTime.format(DateTimeFormatter.ISO_TIME),
+                    customTime1.format(DateTimeFormatter.ISO_TIME),
+                    time.format (DateTimeFormatter.ISO_TIME));
+            ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
+            return timeMenu;
+        });
+
+        timeMenu.AddOption ("Subtract an hour from an hour", () -> {
+            ColorfulConsole.WriteLineFormatted("{0}Create a timed hour", Green(Regular));
+            LocalTime customTime = ChronoMenusUtilities.CreateLocalTime();
+            ColorfulConsole.WriteLineFormatted("{0}Create a timed hour to subtract to the first one", Green(Regular));
+            LocalTime customTime1 = ChronoMenusUtilities.CreateLocalTime();
+
+            TemporalAccessor query = customTime.query(times.subtractHourFromCurrentTime(customTime1));
+            LocalTime time = LocalTime.from(query);
+            String s = String.format("{0}The result of subtracting {1}%s {0}to {1}%s {0}is: {1}%s",
+                    customTime.format(DateTimeFormatter.ISO_TIME),
+                    customTime1.format(DateTimeFormatter.ISO_TIME),
+                    time.format (DateTimeFormatter.ISO_TIME));
+            ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
+            return timeMenu;
+        });
+
+        timeMenu.AddOption ("Convert seconds to hours", () -> {
+            ColorfulConsole.WriteLineFormatted("{0}Choose the amount of seconds (between 0 and 86399):", Green(Regular));
+            int seconds = ColorfulConsole.ReadNextInt();
+
+            TemporalAccessor query = LocalTime.of(0,0,0).query(times.xthSecondOfDay(seconds));
+            LocalTime secondOfDay = LocalTime.from(query);
+
+            String s = String.format("{1}%d {0}seconds is equivalent to: {1}%s", seconds,
+                    secondOfDay.format(DateTimeFormatter.ISO_TIME));
+            ColorfulConsole.WriteLineFormatted(s, Green(Regular), Red(Regular));
+            return timeMenu;
+        });
 
         //====================================================================================================
 

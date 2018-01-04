@@ -1,28 +1,13 @@
 package com.company;
 
-import java.time.*;
-import java.util.*;
-import java.io.*;
-import java.nio.*;
-import java.lang.System.*;
-import java.util.stream.*;
-import java.util.function.*;
-import java.util.Collection.*;
-import java.util.DoubleSummaryStatistics;
-import java.util.InputMismatchException;
-import java.io.PrintWriter;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.lang.NumberFormatException;
+import com.company.Operations.TimezoneInterface;
+
 import java.time.LocalDateTime;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.temporal.ChronoField;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAccessor;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.Temporal;
 import java.time.temporal.TemporalQuery;
+/* IntellIJ is auto-removing these because they're not used
 import java.time.temporal.TemporalQueries;
 import java.time.temporal.TemporalAdjusters;
 import static java.lang.System.out;
@@ -85,30 +70,38 @@ import static java.time.temporal.TemporalQueries.offset;
 import static java.time.temporal.TemporalQueries.precision;
 import static java.time.temporal.TemporalQueries.zone;
 import static java.time.temporal.TemporalQueries.zoneId;
+ */
+
 
 public class TimeZone implements TimezoneInterface {
 
-    private final temporalQuery <ZoneId> currentHourInTimezoneQuery =
+    private final TemporalQuery <ZonedDateTime> currentHourInTimezoneQuery =
             (temporal) -> {
                 ZoneId idQuery = ZoneId.from(temporal);
-                ZoneId systemZoneId = ZoneId.SystemDefault();
+                ZoneId systemZoneId = ZoneId.systemDefault();
                 LocalDateTime ldt = LocalDateTime.now();
                 ZonedDateTime zdtHere = ZonedDateTime.of(ldt, systemZoneId);
                 return zdtHere.withZoneSameInstant(idQuery);
-            }
+            };
 
     @Override
-    public temporalQuery <ZoneId> currentHourInTimezone() {return currentHourInTimezoneQuery;}
+    public TemporalQuery <ZonedDateTime> currentHourInTimezone() {return currentHourInTimezoneQuery;}
 
-    private final temporalQuery <ZoneId> differenceBetweenZonesQuery (temporal idOne, temporal idTwo) {
-        return (temporal) ->
-                LocalDateTime timeOne = LocalDateTime.from(temporal);
-                ZoneId zoneOne = ZoneId.from(idOne);
-                ZoneId zoneTwo = ZoneId.from(idTwo);
-                zonedDateTime zdtOne = ZonedDateTime.of(timeOne, idOne);
-                return zdtOne.withZoneSameInstant(zoneTwo);
+    @Override
+    public ZonedDateTime convertTimezones() {
+        return null;
+    }
+
+    private final TemporalQuery <ZonedDateTime> differenceBetweenZonesQuery (Temporal idOne, Temporal idTwo) {
+        return (temporal) -> {
+            LocalDateTime timeOne = LocalDateTime.from(temporal);
+            ZoneId zoneOne = ZoneId.from(idOne);
+            ZoneId zoneTwo = ZoneId.from(idTwo);
+            ZonedDateTime zdtOne = ZonedDateTime.of(timeOne, zoneOne);
+            return zdtOne.withZoneSameInstant(zoneTwo);
+        };
     }
 
     @Override
-    public temporalQuery <ZoneId> differenceBetweenZones(temporal idOne, temporal idTwo) {return differenceBetweenZonesQuery(idOne, idTwo);}
+    public TemporalQuery <ZonedDateTime> differenceBetweenZones(Temporal idOne, Temporal idTwo) {return differenceBetweenZonesQuery(idOne, idTwo);}
 }
