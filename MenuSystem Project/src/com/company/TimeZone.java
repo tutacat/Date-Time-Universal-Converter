@@ -75,6 +75,12 @@ import static java.time.temporal.TemporalQueries.zoneId;
 
 public class TimeZone implements TimezoneInterface {
 
+    EventExecutor onOperationProgressUpdate = new EventExecutor (0, new Delegate(void.class, float.class));
+
+    public TimeZone(){
+        onOperationProgressUpdate.RegisterListener(this);
+    }
+
     private final TemporalQuery <ZonedDateTime> currentHourInTimezoneQuery =
             (temporal) -> {
                 ZoneId idQuery = ZoneId.from(temporal);
@@ -86,11 +92,6 @@ public class TimeZone implements TimezoneInterface {
 
     @Override
     public TemporalQuery <ZonedDateTime> currentHourInTimezone() {return currentHourInTimezoneQuery;}
-
-    @Override
-    public ZonedDateTime convertTimezones() {
-        return null;
-    }
 
     private final TemporalQuery <ZonedDateTime> differenceBetweenZonesQuery (Temporal idOne, Temporal idTwo) {
         return (temporal) -> {

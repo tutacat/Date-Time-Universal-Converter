@@ -32,6 +32,7 @@ public class Menus implements EventListener {
 
     private DateInterface dates;
     private TimeInterface times;
+    private TimezoneInterface timeZones;
     private IDateConverter dateConverter;
     private IChronometer chronometer;
 
@@ -43,6 +44,7 @@ public class Menus implements EventListener {
     MenuInterface worldLocations;
     MenuInterface locationOptions;
     MenuInterface timeMenu;
+    MenuInterface timezoneMenu;
     MenuInterface chronometerMenu;
 
     public void CreateMenus(Application app)
@@ -61,6 +63,8 @@ public class Menus implements EventListener {
         locationOptions = MenuFactory.getMenu (app, "Location Options");
 
         timeMenu = MenuFactory.getMenu(app, "Time Menu");
+
+        timezoneMenu = MenuFactory.getMenu(app, "TimeZone Menu");
 
         chronometerMenu = MenuFactory.getMenu (app, "Chronometer");
 
@@ -401,6 +405,21 @@ public class Menus implements EventListener {
         });
 
         chronometerMenu.AddExitOption (mainMenu);
+        //====================================================================================================
+
+        //================================= TIMEZONE MENU ====================================================
+        dateMenu.SetMenuName("TimeZone Menu");
+        dateMenu.SetHeader("Menu that operate time zones");
+
+        timezoneMenu.AddOption ("Current hour in a given zone ID", () -> {
+            ColorfulConsole.WriteLineFormatted("{0}Choose a zone " +
+                    "(If you dont know the possible zone IDs go to:" +
+                    "http://www.javadb.com/list-possible-timezones-or-zoneids-in-java/):"
+                    , Green(Regular));
+            String stringIn = readNext();
+            ZoneId idIn = zoneId.of(stringIn);
+            ZonedDateTime query = idIn.query(timeZones.currentHourInTimezone());
+        });
         //====================================================================================================
 
 
