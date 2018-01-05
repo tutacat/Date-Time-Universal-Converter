@@ -388,6 +388,7 @@ public class Menus implements EventListener {
             return timeMenu;
         });
 
+        timeMenu.AddExitOption(mainMenu);
         //====================================================================================================
 
         //================================= CHRONOMETER MENU =================================================
@@ -410,7 +411,7 @@ public class Menus implements EventListener {
 
         //================================= TIMEZONE MENU ====================================================
         timezoneMenu.SetMenuName("TimeZone Menu");
-        timezoneMenu.SetHeader("Menu that operate time zones");
+        timezoneMenu.SetHeader("Menu that operates timezones");
 
         timezoneMenu.AddOption ("Current hour in a given zone ID", () -> {
             ColorfulConsole.WriteLineFormatted("{0}Choose a zone " +
@@ -426,7 +427,7 @@ public class Menus implements EventListener {
             ColorfulConsole.WriteLineFormatted(formatted, Green(Regular), Red(Regular));
             return timezoneMenu;
         });
-        timezoneMenu.AddOption ("Time in a given zone Id, given another zone ID and the time there", () -> {
+        timezoneMenu.AddOption ("Time in ZoneID, given another ZoneID and the time there", () -> {
             ColorfulConsole.WriteLineFormatted("{0}Choose a zone " +
                             "(If you don't know the possible zone IDs go to:" +
                             "http://www.javadb.com/list-possible-timezones-or-zoneids-in-java/):"
@@ -439,8 +440,8 @@ public class Menus implements EventListener {
                             "http://www.javadb.com/list-possible-timezones-or-zoneids-in-java/):"
                     , Green(Regular));
             String secondId = ColorfulConsole.ReadNext();
-            ZonedDateTime zonedDateTime1 = ZonedDateTime.of (customDateTime, ZoneId.of (secondId));
-            ZonedDateTime zonedDateTime2 = ZonedDateTime.of (customDateTime, ZoneId.of (firstId));
+            ZonedDateTime zonedDateTime1 = ZonedDateTime.of (customDateTime, ZoneId.of (firstId));
+            ZonedDateTime zonedDateTime2 = ZonedDateTime.of (customDateTime, ZoneId.of (secondId));
             ZonedDateTime query = customDateTime.query(timeZones.differenceBetweenZones(zonedDateTime1, zonedDateTime2));
             String formatted = String.format("{0}If it is {1}%s {0}in: {1}%s, then it will be {1}%s {0}in: {1}%s",
                     customDateTime.format(DateTimeFormatter.ISO_DATE_TIME), firstId,
@@ -448,6 +449,8 @@ public class Menus implements EventListener {
             ColorfulConsole.WriteLineFormatted(formatted, Green(Regular), Red(Regular));
             return timezoneMenu;
         });
+
+        timezoneMenu.AddExitOption(mainMenu);
         //====================================================================================================
 
 

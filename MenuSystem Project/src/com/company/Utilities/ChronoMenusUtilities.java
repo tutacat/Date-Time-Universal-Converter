@@ -31,7 +31,7 @@ public class ChronoMenusUtilities {
         int hour = validateInput(HOURS);
         int minute = validateInput(MINUTES);
         int second = validateInput(SECONDS);
-        return LocalTime.of(hour, second, minute);
+        return LocalTime.of(hour, minute, second);
     }
 
     /**
