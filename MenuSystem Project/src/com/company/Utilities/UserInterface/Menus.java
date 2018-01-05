@@ -419,7 +419,8 @@ public class Menus implements EventListener {
                     , Green(Regular));
             String stringIn = ColorfulConsole.ReadNext();
             ZoneId idIn = ZoneId.of(stringIn);
-            ZonedDateTime query = idIn.query(timeZones.currentHourInTimezone());
+            ZonedDateTime zonedDateTime = ZonedDateTime.of (LocalDateTime.now (), idIn);
+            ZonedDateTime query = timeZones.currentHourInTimezone ().queryFrom (zonedDateTime);// = idIn.query(timeZones.currentHourInTimezone());
             String formatted = String.format("{0}The current time in {1}%s {0}is: {1}%s",
                     stringIn, query.format(DateTimeFormatter.ISO_DATE_TIME));
             ColorfulConsole.WriteLineFormatted(formatted, Green(Regular), Red(Regular));
@@ -438,7 +439,9 @@ public class Menus implements EventListener {
                             "http://www.javadb.com/list-possible-timezones-or-zoneids-in-java/):"
                     , Green(Regular));
             String secondId = ColorfulConsole.ReadNext();
-            ZonedDateTime query = customDateTime.query(timeZones.differenceBetweenZones(ZoneId.of(firstId),ZoneId.of(secondId)));
+            ZonedDateTime zonedDateTime1 = ZonedDateTime.of (customDateTime, ZoneId.of (secondId));
+            ZonedDateTime zonedDateTime2 = ZonedDateTime.of (customDateTime, ZoneId.of (firstId));
+            ZonedDateTime query = customDateTime.query(timeZones.differenceBetweenZones(zonedDateTime1, zonedDateTime2));
             String formatted = String.format("{0}If it is {1}%s {0}in: {1}%s, then it will be {1}%s {0}in: {1}%s",
                     customDateTime.format(DateTimeFormatter.ISO_DATE_TIME), firstId,
                     query.format(DateTimeFormatter.ISO_DATE_TIME),secondId );

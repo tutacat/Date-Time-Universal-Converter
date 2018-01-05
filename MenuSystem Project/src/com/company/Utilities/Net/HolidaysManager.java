@@ -270,11 +270,16 @@ public class HolidaysManager implements EventListener {
 
     public String[] checkSaves(){
         Path path = Paths.get (".\\src\\Resources\\");
+        if(path == null)
+            return null;
         return new File (path.toUri ()).list ();
     }
 
     public boolean fileExists(String country, int year){
-        Stream <String> arrayList = Arrays.stream (checkSaves ());
+        String[] strings = checkSaves ();
+        if(strings == null)
+            return false;
+        Stream <String> arrayList = Arrays.stream (strings);
         return arrayList.anyMatch ((st) -> st.contains (country + "_" + year));
     }
 }
