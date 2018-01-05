@@ -1,6 +1,9 @@
 package com.company;
 
 import com.company.Operations.TimezoneInterface;
+import com.company.Utilities.Events.Delegate;
+import com.company.Utilities.Events.EventExecutor;
+import com.company.Utilities.Events.EventListener;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -73,7 +76,7 @@ import static java.time.temporal.TemporalQueries.zoneId;
  */
 
 
-public class TimeZone implements TimezoneInterface {
+public class TimeZone implements TimezoneInterface, EventListener {
 
     EventExecutor onOperationProgressUpdate = new EventExecutor (0, new Delegate(void.class, float.class));
 
